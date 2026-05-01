@@ -12,17 +12,18 @@ dotenv.config();
 
 import nodemailer from 'nodemailer';
 
-// Outlook/Office365 Transporter
+// Outlook Transporter Configuration
 const transporter = nodemailer.createTransport({
-  host: 'smtp.office365.com',
+  host: 'smtp-mail.outlook.com', // More reliable host for personal outlook
   port: 587,
-  secure: false,
+  secure: false, // STARTTLS
   auth: {
-    user: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
-    pass: process.env.EMAIL_PASS || 'myfispprjoxanocj'
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   },
   tls: {
-    ciphers: 'SSLv3'
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false
   }
 });
 
@@ -281,7 +282,7 @@ async function startServer() {
 
       // Send the email via Outlook in the background
       transporter.sendMail({
-        from: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Your Chikitsa Verification Code',
         text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
@@ -350,7 +351,7 @@ async function startServer() {
 
       // Send the email via Outlook in the background
       transporter.sendMail({
-        from: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
+        from: process.env.EMAIL_USER,
         to: tempUser.email,
         subject: 'Your Chikitsa Verification Code',
         text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
