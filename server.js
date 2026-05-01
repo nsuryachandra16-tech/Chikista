@@ -226,6 +226,12 @@ async function startServer() {
 
   // --- API ROUTES ---
 
+  app.get('/api/config', (req, res) => {
+    res.json({
+      tomtomKey: process.env.VITE_TOMTOM_API_KEY || process.env.TOMTOM_API_KEY || ''
+    });
+  });
+
   // Auth: Verify Session
   app.get('/api/auth/verify', authenticateToken, (req, res) => {
     res.json({ valid: true, user: req.user });

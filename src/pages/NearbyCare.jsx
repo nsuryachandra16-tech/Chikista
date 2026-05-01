@@ -59,10 +59,11 @@ export default function NearbyCare() {
   const [search, setSearch] = useState('');
   const [clinics, setClinics] = useState([]);
   const [activeFilter, setActiveFilter] = useState('hospital'); // hospital, clinic, pharmacy
+  const [tomtomKey, setTomtomKey] = useState('');
 
-  const fetchNearbyClinics = async (lat, lng, category) => {
+  const fetchNearbyClinics = async (lat, lng, category, apiKeyOverride) => {
     setLoading(true);
-    const apiKey = import.meta.env.VITE_TOMTOM_API_KEY;
+    const apiKey = apiKeyOverride || tomtomKey;
     
     // Using TomTom category sets or keywords
     const categoryMap = {
@@ -134,20 +135,34 @@ export default function NearbyCare() {
   };
 
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          setLocation(coords);
-          fetchNearbyClinics(coords.lat, coords.lng, activeFilter);
-        },
-        () => {
-          fetchNearbyClinics(location.lat, location.lng, activeFilter);
+    // Fetch TomTom API key from backend dynamically
+    fetch('/api/config')
+      .then(res => res.json())
+      .then(data => {
+        if (data.tomtomKey) {
+          setTomtomKey(data.tomtomKey);
         }
-      );
-    } else {
-      fetchNearbyClinics(location.lat, location.lng, activeFilter);
-    }
+        
+        // After getting the key, locate user or default
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+              setLocation(coords);
+              fetchNearbyClinics(coords.lat, coords.lng, activeFilter, data.tomtomKey);
+            },
+            () => {
+              fetchNearbyClinics(location.lat, location.lng, activeFilter, data.tomtomKey);
+            }
+          );
+        } else {
+          fetchNearbyClinics(location.lat, location.lng, activeFilter, data.tomtomKey);
+        }
+      })
+      .catch(err => {
+        console.error("Config fetch error:", err);
+        setLoading(false);
+      });
   }, [activeFilter]);
 
   const filteredClinics = clinics.filter(c => 
