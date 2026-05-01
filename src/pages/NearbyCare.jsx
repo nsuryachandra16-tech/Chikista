@@ -66,9 +66,9 @@ export default function NearbyCare() {
     
     // Using TomTom category sets or keywords
     const categoryMap = {
-      hospital: 'hospital',
-      clinic: 'clinic',
-      pharmacy: 'pharmacy'
+      hospital: 'hospital, healthcare, medical',
+      clinic: 'clinic, doctor, health, therapy',
+      pharmacy: 'pharmacy, drugstore, medicine'
     };
 
     if (!apiKey) {
@@ -76,15 +76,19 @@ export default function NearbyCare() {
       const mockData = {
         hospital: [
           { id: 1, name: "Apollo Clinical Center", type: "Hospital", address: "24 Health Street, Medical District", distance: "1.2 km", position: [lat + 0.005, lng + 0.005] },
-          { id: 2, name: "St. Jude Heart Research", type: "Specialist Hospital", address: "88 Cardiac Ave, Research Park", distance: "2.5 km", position: [lat - 0.005, lng - 0.005] }
+          { id: 2, name: "St. Jude Heart Research", type: "Specialist Hospital", address: "88 Cardiac Ave, Research Park", distance: "2.5 km", position: [lat - 0.005, lng - 0.005] },
+          { id: 7, name: "Metro General Hospital", type: "General Hospital", address: "101 City Center Rd", distance: "0.8 km", position: [lat + 0.003, lng - 0.004] },
+          { id: 8, name: "Greenwood Medical Hub", type: "Multi-specialty Hospital", address: "42 Valley View Ln", distance: "3.1 km", position: [lat - 0.008, lng + 0.006] }
         ],
         clinic: [
           { id: 3, name: "Wellness First Clinic", type: "Clinic", address: "Greenwood Valley", distance: "0.5 km", position: [lat + 0.002, lng - 0.003] },
-          { id: 4, name: "City Children's Clinic", type: "Pediatric Care", address: "102 Kidz Way, Family Lane", distance: "4.1 km", position: [lat + 0.01, lng - 0.01] }
+          { id: 4, name: "City Children's Clinic", type: "Pediatric Care", address: "102 Kidz Way, Family Lane", distance: "4.1 km", position: [lat + 0.01, lng - 0.01] },
+          { id: 9, name: "Family Health & Dental Care", type: "Primary Care", address: "55 Maple Ave", distance: "1.5 km", position: [lat - 0.003, lng + 0.002] }
         ],
         pharmacy: [
           { id: 5, name: "QuickCare Pharmacy", type: "Pharmacy", address: "Main St Crossing", distance: "0.2 km", position: [lat - 0.001, lng - 0.001] },
-          { id: 6, name: "Medi-Logistics Hub", type: "Pharmacy", address: "Business District", distance: "3.4 km", position: [lat - 0.008, lng - 0.008] }
+          { id: 6, name: "Medi-Logistics Hub", type: "Pharmacy", address: "Business District", distance: "3.4 km", position: [lat - 0.008, lng - 0.008] },
+          { id: 10, name: "HealthMart Drugstore", type: "Pharmacy", address: "77 Oak St", distance: "0.6 km", position: [lat + 0.004, lng + 0.004] }
         ]
       };
       
@@ -102,7 +106,7 @@ export default function NearbyCare() {
     }
 
     try {
-      const url = `https://api.tomtom.com/search/2/poiSearch/${categoryMap[category]}.json?key=${apiKey}&lat=${lat}&lon=${lng}&radius=5000&limit=12`;
+      const url = `https://api.tomtom.com/search/2/poiSearch/${encodeURIComponent(categoryMap[category])}.json?key=${apiKey}&lat=${lat}&lon=${lng}&radius=50000&limit=30`;
       const response = await fetch(url);
       const data = await response.json();
       

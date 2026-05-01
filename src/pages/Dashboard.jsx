@@ -37,8 +37,25 @@ export default function Dashboard() {
   const [latency, setLatency] = useState(0);
   const [dbStatus, setDbStatus] = useState('Checking...');
   const [showLogModal, setShowLogModal] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [newVital, setNewVital] = useState({ type: 'heart_rate', value: '' });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      const accepted = localStorage.getItem(`chikitsa_disclaimer_${user.id}`);
+      if (!accepted) {
+        setShowDisclaimer(true);
+      }
+    }
+  }, [user]);
+
+  const handleAcceptDisclaimer = () => {
+    if (user?.id) {
+      localStorage.setItem(`chikitsa_disclaimer_${user.id}`, 'true');
+    }
+    setShowDisclaimer(false);
+  };
 
   const fetchData = async () => {
     const startTime = performance.now();
@@ -137,6 +154,36 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-16 pb-12">
+      {/* Disclaimer Modal */}
+      <AnimatePresence>
+        {showDisclaimer && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] p-10 max-w-xl w-full shadow-2xl relative overflow-hidden text-center flex flex-col items-center gap-6"
+            >
+              <div className="w-20 h-20 bg-medical-50 dark:bg-medical-950/30 text-medical-500 rounded-3xl flex items-center justify-center mb-2">
+                <ShieldCheck size={40} />
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none text-slate-900 dark:text-white">
+                Chikitsa <span className="text-medical-500">Notice</span>
+              </h3>
+              <p className="text-sm font-bold text-slate-500 max-w-sm">
+                Chikitsa is designed to assist you in making informed decisions and saving money on healthcare costs. It is <span className="text-slate-900 dark:text-white underline">not a replacement</span> for professional medical advice or qualified doctors.
+              </p>
+              <button
+                onClick={handleAcceptDisclaimer}
+                className="w-full mt-2 px-8 py-5 bg-medical-500 hover:bg-medical-600 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                Accept & Proceed
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Dynamic Header */}
       <section className="flex flex-col md:flex-row gap-8 justify-between items-start max-w-7xl mx-auto">
         <div className="space-y-3">
