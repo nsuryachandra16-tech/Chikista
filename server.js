@@ -400,14 +400,10 @@ async function startServer() {
       console.log(`🔑 OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send verification email
-      try {
-        await sendVerificationEmail(email, name, otpCode);
-      } catch (mailErr) {
-        console.error('❌ All email methods failed during signup:', mailErr.message);
-        tempUsers.delete(email);
-        return res.status(500).json({ error: 'Failed to send verification email: ' + mailErr.message });
-      }
+      // Send verification email in the background to speed up API response
+      sendVerificationEmail(email, name, otpCode).catch(mailErr => {
+        console.error('❌ Background email sending failed:', mailErr.message);
+      });
 
       res.status(201).json({ success: true, message: 'Verification code sent to your email.' });
     } catch (error) {
@@ -464,13 +460,10 @@ async function startServer() {
       console.log(`🔄 RESEND OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send verification email
-      try {
-        await sendVerificationEmail(tempUser.email, tempUser.name, otpCode);
-      } catch (mailErr) {
-        console.error('❌ All email methods failed during resend:', mailErr.message);
-        return res.status(500).json({ error: 'Failed to resend verification email: ' + mailErr.message });
-      }
+      // Send verification email in the background to speed up API response
+      sendVerificationEmail(tempUser.email, tempUser.name, otpCode).catch(mailErr => {
+        console.error('❌ Background resend email failed:', mailErr.message);
+      });
 
       res.json({ message: 'Verification code resent to your email.' });
     } catch (error) {

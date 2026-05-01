@@ -44,9 +44,9 @@ export default function Verify() {
       }
 
       // Automatically login on verification success
-      localStorage.setItem('token', data.token);
-      login(data.user, data.token);
-      navigate('/dashboard');
+      localStorage.setItem('chikitsa_token', data.token);
+      localStorage.setItem('chikitsa_user', JSON.stringify(data.user));
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message);
     } finally {
