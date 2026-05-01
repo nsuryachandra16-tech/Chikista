@@ -334,15 +334,20 @@ async function startServer() {
       console.log(`===========================================\n`);
 
       // Send the email via Outlook in the background
-      transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Your Chikitsa Verification Code',
-        text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
-        html: generateEmailTemplate(name, otpCode)
-      }).catch(mailErr => {
-        console.error("Outlook sendMail failed in background during signup:", mailErr);
-      });
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Your Chikitsa Verification Code',
+          text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+          html: generateEmailTemplate(name, otpCode)
+        });
+      } catch (mailErr) {
+        console.error("SMTP Error:", mailErr);
+        // Delete the temporary user so they can try signing up again
+        tempUsers.delete(email);
+        return res.status(500).json({ error: 'Failed to send email: ' + mailErr.message });
+      }
       
       res.status(201).json({ success: true, message: 'Verification code sent' });
     } catch (error) {
@@ -400,15 +405,18 @@ async function startServer() {
       console.log(`===========================================\n`);
 
       // Send the email via Outlook in the background
-      transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: tempUser.email,
-        subject: 'Your Chikitsa Verification Code',
-        text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
-        html: generateEmailTemplate(tempUser.name, otpCode)
-      }).catch(mailErr => {
-        console.error("Outlook sendMail failed in background during code resend:", mailErr);
-      });
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: tempUser.email,
+          subject: 'Your Chikitsa Verification Code',
+          text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+          html: generateEmailTemplate(tempUser.name, otpCode)
+        });
+      } catch (mailErr) {
+        console.error("SMTP Error:", mailErr);
+        return res.status(500).json({ error: 'Failed to send email: ' + mailErr.message });
+      }
 
       res.json({ message: 'Verification code resent' });
     } catch (error) {
