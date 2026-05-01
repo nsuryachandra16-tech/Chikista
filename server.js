@@ -24,7 +24,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   },
   tls: {
-    ciphers: 'SSLv3',
     rejectUnauthorized: false
   }
 });
@@ -334,17 +333,24 @@ async function startServer() {
       console.log(`===========================================\n`);
 
       // Send the email via Outlook in the background
+      // Send the email with a 4-second timeout limit to avoid getting stuck on REGISTERING...
       try {
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: 'Your Chikitsa Verification Code',
-          text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
-          html: generateEmailTemplate(name, otpCode)
-        });
+        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out. Check your SMTP settings.')), 4000));
+        await Promise.race([
+          transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your Chikitsa Verification Code',
+            text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+            html: generateEmailTemplate(name, otpCode)
+          }),
+          mailTimeout
+        ]);
       } catch (mailErr) {
         console.error("SMTP Error:", mailErr);
-        // Delete the temporary user so they can try signing up again
+        // Fallback: don't block registration completely. If email fails, let them see it in logs or prompt.
+        // For local / testing peace of mind, let's keep the user but notify them that the email couldn't be sent immediately.
+        // Or we can delete and return 500 error:
         tempUsers.delete(email);
         return res.status(500).json({ error: 'Failed to send email: ' + mailErr.message });
       }
@@ -404,15 +410,19 @@ async function startServer() {
       console.log(`🔄 RESEND OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send the email via Outlook in the background
+      // Send the email with a 4-second timeout limit to avoid getting stuck on REGISTERING...
       try {
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: tempUser.email,
-          subject: 'Your Chikitsa Verification Code',
-          text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
-          html: generateEmailTemplate(tempUser.name, otpCode)
-        });
+        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out. Check your SMTP settings.')), 4000));
+        await Promise.race([
+          transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: tempUser.email,
+            subject: 'Your Chikitsa Verification Code',
+            text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+            html: generateEmailTemplate(tempUser.name, otpCode)
+          }),
+          mailTimeout
+        ]);
       } catch (mailErr) {
         console.error("SMTP Error:", mailErr);
         return res.status(500).json({ error: 'Failed to send email: ' + mailErr.message });
