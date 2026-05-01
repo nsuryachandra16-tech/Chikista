@@ -107,11 +107,16 @@ export default function NearbyCare() {
     }
 
     try {
-      const url = `https://api.tomtom.com/search/2/poiSearch/${encodeURIComponent(categoryMap[category])}.json?key=${apiKey}&lat=${lat}&lon=${lng}&radius=50000&limit=30`;
+      const url = `https://api.tomtom.com/search/2/poiSearch/${encodeURIComponent(categoryMap[category])}.json?key=${apiKey}&lat=${lat}&lon=${lng}&radius=10000&limit=30`;
       const response = await fetch(url);
       const data = await response.json();
       
-      const mapped = data.results.map((result, i) => {
+      // Sort exactly by closest distance
+      if (data.results && Array.isArray(data.results)) {
+        data.results.sort((a, b) => a.dist - b.dist);
+      }
+
+      const mapped = (data.results || []).map((result, i) => {
         return {
           id: result.id,
           name: result.poi.name,
