@@ -83,8 +83,8 @@ export function AuthProvider({ children }) {
     
     if (!response.ok) throw new Error(data.error || 'Signup failed');
 
-    // Auto login after signup
-    return login(email, password);
+    // No auto login until verification is complete
+    return data;
   };
 
   const loginWithGoogle = async () => {

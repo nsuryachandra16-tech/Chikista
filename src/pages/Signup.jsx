@@ -20,7 +20,7 @@ export default function Signup() {
     
     try {
       await signup(email.trim(), password.trim(), name.trim());
-      navigate('/dashboard');
+      navigate('/verify', { state: { email: email.trim() } });
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
     } finally {

@@ -20,7 +20,11 @@ export default function Login() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Failed to login. Please check your credentials.');
+      if (err.message?.includes('unverified') || err.message?.includes('403')) {
+        navigate('/verify', { state: { email: email.trim() } });
+      } else {
+        setError(err.message || 'Failed to login. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }

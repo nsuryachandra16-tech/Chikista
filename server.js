@@ -10,6 +10,22 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import nodemailer from 'nodemailer';
+
+// Outlook/Office365 Transporter
+const transporter = nodemailer.createTransport({
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
+    pass: process.env.EMAIL_PASS || 'myfispprjoxanocj'
+  },
+  tls: {
+    ciphers: 'SSLv3'
+  }
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'chikitsa-super-secret-key';
@@ -80,6 +96,13 @@ await pool.query(`
     created_at VARCHAR(255)
   );
 `);
+
+try {
+  await pool.query(`ALTER TABLE users ADD COLUMN is_verified TINYINT DEFAULT 1`);
+} catch (e) {}
+try {
+  await pool.query(`ALTER TABLE users ADD COLUMN verification_code VARCHAR(50)`);
+} catch (e) {}
 
 await pool.query(`
   CREATE TABLE IF NOT EXISTS doctors (
@@ -243,13 +266,103 @@ async function startServer() {
       const { email, password, name } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      const [result] = await pool.execute('INSERT INTO users (email, password, name, created_at) VALUES (?, ?, ?, ?)', [email, hashedPassword, name, new Date().toISOString()]);
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      const [result] = await pool.execute(
+        'INSERT INTO users (email, password, name, is_verified, verification_code, created_at) VALUES (?, ?, ?, 0, ?, ?)',
+        [email, hashedPassword, name, otpCode, new Date().toISOString()]
+      );
+
+      // Send the email via Outlook
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
+          to: email,
+          subject: 'Your Chikitsa Verification Code',
+          text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+          html: `<div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 12px;">
+            <h2 style="color: #0d9488; text-transform: uppercase; letter-spacing: 2px;">Chikitsa Verification</h2>
+            <p style="font-size: 16px; color: #4b5563;">Hello <strong>${name}</strong>,</p>
+            <p style="font-size: 16px; color: #4b5563;">Thank you for registering on Chikitsa. Here is your 6-digit verification code to activate your account:</p>
+            <div style="background: #f0fdfa; padding: 20px; font-size: 32px; font-weight: bold; text-align: center; color: #0d9488; letter-spacing: 5px; border-radius: 8px; border: 1px dashed #0d9488; margin: 20px 0;">
+              ${otpCode}
+            </div>
+            <p style="font-size: 14px; color: #6b7280;">This code will activate your account. If you did not sign up for an account, you can safely ignore this email.</p>
+          </div>`
+        });
+      } catch (mailErr) {
+        console.error("Outlook sendMail failed during signup:", mailErr);
+      }
       
       res.status(201).json({ id: result.insertId, message: 'User created' });
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY' || error.message.includes('UNIQUE constraint failed') || error.message.includes('Duplicate entry')) {
         return res.status(400).json({ error: 'Email already in use' });
       }
+      res.status(500).json({ error: 'Internal server error: ' + error.message });
+    }
+  });
+
+  // Auth: Verify Code
+  app.post('/api/auth/verify-code', async (req, res) => {
+    try {
+      const { email, code } = req.body;
+      const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+      const user = users[0];
+
+      if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+      }
+
+      if (user.verification_code === code) {
+        await pool.execute('UPDATE users SET is_verified = 1, verification_code = NULL WHERE id = ?', [user.id]);
+        
+        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });
+        return res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name, subscription_tier: user.subscription_tier, subscription_expiry: user.subscription_expiry } });
+      } else {
+        return res.status(400).json({ error: 'Invalid verification code' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error: ' + error.message });
+    }
+  });
+
+  // Resend Verification Code
+  app.post('/api/auth/resend-code', async (req, res) => {
+    try {
+      const { email } = req.body;
+      const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+      const user = users[0];
+
+      if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+      }
+
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      await pool.execute('UPDATE users SET verification_code = ? WHERE id = ?', [otpCode, user.id]);
+
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
+          to: user.email,
+          subject: 'Your Chikitsa Verification Code',
+          text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+          html: `<div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 12px;">
+            <h2 style="color: #0d9488; text-transform: uppercase; letter-spacing: 2px;">Chikitsa Verification</h2>
+            <p style="font-size: 16px; color: #4b5563;">Hello <strong>${user.name}</strong>,</p>
+            <p style="font-size: 16px; color: #4b5563;">Thank you for registering on Chikitsa. Here is your 6-digit verification code to activate your account:</p>
+            <div style="background: #f0fdfa; padding: 20px; font-size: 32px; font-weight: bold; text-align: center; color: #0d9488; letter-spacing: 5px; border-radius: 8px; border: 1px dashed #0d9488; margin: 20px 0;">
+              ${otpCode}
+            </div>
+            <p style="font-size: 14px; color: #6b7280;">This code will activate your account. If you did not sign up for an account, you can safely ignore this email.</p>
+          </div>`
+        });
+      } catch (mailErr) {
+        console.error("Outlook sendMail failed during code resend:", mailErr);
+      }
+
+      res.json({ message: 'Verification code resent' });
+    } catch (error) {
       res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
   });
@@ -263,6 +376,10 @@ async function startServer() {
       
       if (!user || !(await bcrypt.compare(password, user.password))) {
         return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      if (user.is_verified === 0) {
+        return res.status(403).json({ error: 'unverified', message: 'Account is not verified yet. Check your email for code.' });
       }
 
       const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });

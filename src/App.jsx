@@ -7,6 +7,7 @@ import Layout from './components/Layout';
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
+const Verify = lazy(() => import('./pages/Verify'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const HealthCheck = lazy(() => import('./pages/HealthCheck'));
 const Reports = lazy(() => import('./pages/Reports'));
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/verify" element={<Verify />} />
             
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
