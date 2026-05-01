@@ -12,13 +12,15 @@ dotenv.config();
 
 import nodemailer from 'nodemailer';
 
-// Dynamic Transporter Configuration (Supports Gmail or Outlook)
+// Dynamic Transporter Configuration (Supports Gmail, Outlook, or any custom SMTP provider)
 const isGmail = process.env.EMAIL_USER?.toLowerCase().includes('@gmail.com');
+const smtpHost = process.env.EMAIL_HOST || (isGmail ? 'smtp.gmail.com' : 'smtp-mail.outlook.com');
+const smtpPort = parseInt(process.env.EMAIL_PORT || '587', 10);
 
 const transporter = nodemailer.createTransport({
-  host: isGmail ? 'smtp.gmail.com' : 'smtp-mail.outlook.com',
-  port: 587,
-  secure: false, // STARTTLS
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpPort === 465, // True if using port 465, false for 587 (STARTTLS)
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
