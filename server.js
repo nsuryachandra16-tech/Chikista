@@ -481,21 +481,34 @@ async function startServer() {
   // Auth: Login
   app.post('/api/auth/login', async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const email = req.body.email ? req.body.email.trim() : '';
+      const password = req.body.password ? req.body.password.trim() : '';
+
+      console.log(`🔐 Login attempt for email: "${email}"`);
       const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
       const user = users[0];
       
-      if (!user || !(await bcrypt.compare(password, user.password))) {
+      if (!user) {
+        console.warn(`❌ Login failed: User not found for email "${email}"`);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        console.warn(`❌ Login failed: Password mismatch for email "${email}"`);
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
       if (user.is_verified === 0) {
+        console.warn(`❌ Login failed: Email unverified for email "${email}"`);
         return res.status(403).json({ error: 'unverified', message: 'Account is not verified yet. Check your email for code.' });
       }
 
+      console.log(`✅ Login successful for email: "${email}"`);
       const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });
       res.json({ token, user: { id: user.id, email: user.email, name: user.name, subscription_tier: user.subscription_tier, subscription_expiry: user.subscription_expiry } });
     } catch (error) {
+      console.error(`💥 Internal server error during login:`, error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
