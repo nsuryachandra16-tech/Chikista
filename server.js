@@ -280,6 +280,11 @@ async function startServer() {
       // Store temporarily in memory - Do NOT insert into the database yet
       tempUsers.set(email, { name, email, password: hashedPassword, code: otpCode });
 
+      // DEBUG: Log the OTP to the console so it can be seen even if email fails!
+      console.log(`\n===========================================`);
+      console.log(`🔑 OTP CODE FOR ${email}: ${otpCode}`);
+      console.log(`===========================================\n`);
+
       // Send the email via Outlook in the background
       transporter.sendMail({
         from: process.env.EMAIL_USER,
@@ -348,6 +353,11 @@ async function startServer() {
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       tempUser.code = otpCode;
       tempUsers.set(email, tempUser);
+
+      // DEBUG: Log the OTP to the console so it can be seen even if email fails!
+      console.log(`\n===========================================`);
+      console.log(`🔄 RESEND OTP CODE FOR ${email}: ${otpCode}`);
+      console.log(`===========================================\n`);
 
       // Send the email via Outlook in the background
       transporter.sendMail({
