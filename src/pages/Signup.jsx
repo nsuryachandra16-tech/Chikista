@@ -19,8 +19,8 @@ export default function Signup() {
     setLoading(true);
     
     try {
-      await signup(email.trim(), password.trim(), name.trim());
-      navigate('/verify', { state: { email: email.trim() } });
+      const res = await signup(email.trim(), password.trim(), name.trim());
+      navigate('/verify', { state: { email: email.trim(), otp: res?.otp } });
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
     } finally {
