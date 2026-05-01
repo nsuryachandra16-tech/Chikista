@@ -16,7 +16,7 @@ import nodemailer from 'nodemailer';
 const isGmail = process.env.EMAIL_USER?.toLowerCase().includes('@gmail.com');
 const smtpHost = process.env.EMAIL_HOST || (isGmail ? 'smtp.gmail.com' : 'smtp-mail.outlook.com');
 const smtpPort = parseInt(process.env.EMAIL_PORT || '587', 10);
-// EMAIL_FROM = the verified sender address shown in the "From" field (e.g. airus.healthai@gmail.com)
+// EMAIL_FROM = the verified sender address shown in the "From" field
 // EMAIL_USER = the SMTP login username (may differ from FROM for services like Brevo)
 const emailFrom = process.env.EMAIL_FROM || process.env.EMAIL_USER;
 
@@ -30,10 +30,71 @@ const transporter = nodemailer.createTransport({
   },
   tls: {
     rejectUnauthorized: false
-  }
+  },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000
 });
 
 console.log(`📧 SMTP configured: host=${smtpHost}, port=${smtpPort}, user=${process.env.EMAIL_USER}, from=${emailFrom}`);
+
+// Verify SMTP connection on startup
+transporter.verify()
+  .then(() => console.log('✅ SMTP connection verified successfully!'))
+  .catch(err => console.error('❌ SMTP connection verification FAILED:', err.message));
+
+// Helper: Send verification email (SMTP with Brevo HTTP API fallback)
+async function sendVerificationEmail(toEmail, toName, otpCode) {
+  const mailOptions = {
+    from: emailFrom,
+    to: toEmail,
+    subject: 'Your Chikitsa Verification Code',
+    text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
+    html: generateEmailTemplate(toName, otpCode)
+  };
+
+  // Try SMTP first
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ SMTP email sent to ${toEmail}: ${info?.response}`);
+    return { success: true, method: 'smtp' };
+  } catch (smtpErr) {
+    console.error(`❌ SMTP failed for ${toEmail}: ${smtpErr.message}`);
+  }
+
+  // Fallback: Brevo HTTP API (works even if SMTP port is blocked)
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  if (brevoApiKey) {
+    try {
+      console.log(`🔄 Trying Brevo HTTP API fallback for ${toEmail}...`);
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': brevoApiKey,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: { email: emailFrom, name: 'Chikitsa Intelligence' },
+          to: [{ email: toEmail, name: toName }],
+          subject: mailOptions.subject,
+          htmlContent: mailOptions.html
+        })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        console.log(`✅ Brevo HTTP API email sent to ${toEmail}:`, result);
+        return { success: true, method: 'brevo-api' };
+      } else {
+        console.error(`❌ Brevo HTTP API failed:`, result);
+      }
+    } catch (apiErr) {
+      console.error(`❌ Brevo HTTP API error:`, apiErr.message);
+    }
+  }
+
+  throw new Error('All email delivery methods failed. Check Render logs for details.');
+}
 
 const tempUsers = new Map();
 
@@ -339,24 +400,13 @@ async function startServer() {
       console.log(`🔑 OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send verification email with 10-second timeout
+      // Send verification email
       try {
-        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out after 10s.')), 10000));
-        const info = await Promise.race([
-          transporter.sendMail({
-            from: emailFrom,
-            to: email,
-            subject: 'Your Chikitsa Verification Code',
-            text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
-            html: generateEmailTemplate(name, otpCode)
-          }),
-          mailTimeout
-        ]);
-        console.log(`✅ Email sent to ${email}: ${info?.response}`);
+        await sendVerificationEmail(email, name, otpCode);
       } catch (mailErr) {
-        console.error("❌ SMTP Error during signup:", mailErr.message);
+        console.error('❌ All email methods failed during signup:', mailErr.message);
         tempUsers.delete(email);
-        return res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
+        return res.status(500).json({ error: 'Failed to send verification email: ' + mailErr.message });
       }
 
       res.status(201).json({ success: true, message: 'Verification code sent to your email.' });
@@ -414,23 +464,12 @@ async function startServer() {
       console.log(`🔄 RESEND OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send verification email with 10-second timeout
+      // Send verification email
       try {
-        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out after 10s.')), 10000));
-        const info = await Promise.race([
-          transporter.sendMail({
-            from: emailFrom,
-            to: tempUser.email,
-            subject: 'Your Chikitsa Verification Code',
-            text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
-            html: generateEmailTemplate(tempUser.name, otpCode)
-          }),
-          mailTimeout
-        ]);
-        console.log(`✅ Resend email sent to ${email}: ${info?.response}`);
+        await sendVerificationEmail(tempUser.email, tempUser.name, otpCode);
       } catch (mailErr) {
-        console.error("❌ SMTP Error during resend:", mailErr.message);
-        return res.status(500).json({ error: 'Failed to resend verification email. Please try again.' });
+        console.error('❌ All email methods failed during resend:', mailErr.message);
+        return res.status(500).json({ error: 'Failed to resend verification email: ' + mailErr.message });
       }
 
       res.json({ message: 'Verification code resent to your email.' });
