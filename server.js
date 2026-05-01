@@ -26,6 +26,8 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+const tempUsers = new Map();
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'chikitsa-super-secret-key';
@@ -264,14 +266,19 @@ async function startServer() {
   app.post('/api/auth/signup', async (req, res) => {
     try {
       const { email, password, name } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
       
+      // Check if user already exists
+      const [existing] = await pool.execute('SELECT id FROM users WHERE email = ?', [email]);
+      if (existing.length > 0) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       
-      const [result] = await pool.execute(
-        'INSERT INTO users (email, password, name, is_verified, verification_code, created_at) VALUES (?, ?, ?, 0, ?, ?)',
-        [email, hashedPassword, name, otpCode, new Date().toISOString()]
-      );
+      // Store temporarily in memory - Do NOT insert into the database yet
+      tempUsers.set(email, { name, email, password: hashedPassword, code: otpCode });
+
       // Send the email via Outlook in the background
       transporter.sendMail({
         from: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
@@ -291,11 +298,8 @@ async function startServer() {
         console.error("Outlook sendMail failed in background during signup:", mailErr);
       });
       
-      res.status(201).json({ id: result.insertId, message: 'User created' });
+      res.status(201).json({ success: true, message: 'Verification code sent' });
     } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY' || error.message.includes('UNIQUE constraint failed') || error.message.includes('Duplicate entry')) {
-        return res.status(400).json({ error: 'Email already in use' });
-      }
       res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
   });
@@ -304,18 +308,24 @@ async function startServer() {
   app.post('/api/auth/verify-code', async (req, res) => {
     try {
       const { email, code } = req.body;
-      const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
-      const user = users[0];
+      const tempUser = tempUsers.get(email);
 
-      if (!user) {
-        return res.status(400).json({ error: 'User not found' });
+      if (!tempUser) {
+        return res.status(400).json({ error: 'Pending registration not found. Please sign up again.' });
       }
 
-      if (user.verification_code === code) {
-        await pool.execute('UPDATE users SET is_verified = 1, verification_code = NULL WHERE id = ?', [user.id]);
+      if (tempUser.code === code) {
+        // Verification success -> NOW add the user to the database
+        const [result] = await pool.execute(
+          'INSERT INTO users (email, password, name, is_verified, created_at) VALUES (?, ?, ?, 1, ?)',
+          [tempUser.email, tempUser.password, tempUser.name, new Date().toISOString()]
+        );
         
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '24h' });
-        return res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name, subscription_tier: user.subscription_tier, subscription_expiry: user.subscription_expiry } });
+        // Remove from memory
+        tempUsers.delete(email);
+
+        const token = jwt.sign({ id: result.insertId, email: tempUser.email }, SECRET_KEY, { expiresIn: '24h' });
+        return res.json({ success: true, token, user: { id: result.insertId, email: tempUser.email, name: tempUser.name, subscription_tier: 'free' } });
       } else {
         return res.status(400).json({ error: 'Invalid verification code' });
       }
@@ -328,25 +338,25 @@ async function startServer() {
   app.post('/api/auth/resend-code', async (req, res) => {
     try {
       const { email } = req.body;
-      const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
-      const user = users[0];
+      const tempUser = tempUsers.get(email);
 
-      if (!user) {
-        return res.status(400).json({ error: 'User not found' });
+      if (!tempUser) {
+        return res.status(400).json({ error: 'Pending registration not found. Please sign up again.' });
       }
 
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-      await pool.execute('UPDATE users SET verification_code = ? WHERE id = ?', [otpCode, user.id]);
+      tempUser.code = otpCode;
+      tempUsers.set(email, tempUser);
 
       // Send the email via Outlook in the background
       transporter.sendMail({
         from: process.env.EMAIL_USER || 'your-outlook-email@outlook.com',
-        to: user.email,
+        to: tempUser.email,
         subject: 'Your Chikitsa Verification Code',
         text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
         html: `<div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee; border-radius: 12px;">
           <h2 style="color: #0d9488; text-transform: uppercase; letter-spacing: 2px;">Chikitsa Verification</h2>
-          <p style="font-size: 16px; color: #4b5563;">Hello <strong>${user.name}</strong>,</p>
+          <p style="font-size: 16px; color: #4b5563;">Hello <strong>${tempUser.name}</strong>,</p>
           <p style="font-size: 16px; color: #4b5563;">Thank you for registering on Chikitsa. Here is your 6-digit verification code to activate your account:</p>
           <div style="background: #f0fdfa; padding: 20px; font-size: 32px; font-weight: bold; text-align: center; color: #0d9488; letter-spacing: 5px; border-radius: 8px; border: 1px dashed #0d9488; margin: 20px 0;">
             ${otpCode}
