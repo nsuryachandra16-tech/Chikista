@@ -12,15 +12,18 @@ dotenv.config();
 
 import nodemailer from 'nodemailer';
 
-// Dynamic Transporter Configuration (Supports Gmail, Outlook, or any custom SMTP provider)
+// Dynamic Transporter Configuration (Supports Gmail, Outlook, Brevo, or any custom SMTP)
 const isGmail = process.env.EMAIL_USER?.toLowerCase().includes('@gmail.com');
 const smtpHost = process.env.EMAIL_HOST || (isGmail ? 'smtp.gmail.com' : 'smtp-mail.outlook.com');
 const smtpPort = parseInt(process.env.EMAIL_PORT || '587', 10);
+// EMAIL_FROM = the verified sender address shown in the "From" field (e.g. airus.healthai@gmail.com)
+// EMAIL_USER = the SMTP login username (may differ from FROM for services like Brevo)
+const emailFrom = process.env.EMAIL_FROM || process.env.EMAIL_USER;
 
 const transporter = nodemailer.createTransport({
   host: smtpHost,
   port: smtpPort,
-  secure: smtpPort === 465, // True if using port 465, false for 587 (STARTTLS)
+  secure: smtpPort === 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -29,6 +32,8 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false
   }
 });
+
+console.log(`📧 SMTP configured: host=${smtpHost}, port=${smtpPort}, user=${process.env.EMAIL_USER}, from=${emailFrom}`);
 
 const tempUsers = new Map();
 
@@ -334,14 +339,12 @@ async function startServer() {
       console.log(`🔑 OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send the email via Outlook in the background
-      // Send the email with a 4-second timeout limit to avoid getting stuck on REGISTERING...
-      let mailStatus = 'Email sent successfully via SMTP';
+      // Send verification email with 10-second timeout
       try {
-        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out. Check your SMTP settings.')), 4000));
+        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out after 10s.')), 10000));
         const info = await Promise.race([
           transporter.sendMail({
-            from: process.env.EMAIL_USER,
+            from: emailFrom,
             to: email,
             subject: 'Your Chikitsa Verification Code',
             text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
@@ -349,21 +352,14 @@ async function startServer() {
           }),
           mailTimeout
         ]);
-        if (info && info.response) {
-          mailStatus = `Email accepted by SMTP: ${info.response}`;
-        }
+        console.log(`✅ Email sent to ${email}: ${info?.response}`);
       } catch (mailErr) {
-        console.error("SMTP Error during signup:", mailErr);
-        mailStatus = `Email failed to send: ${mailErr.message}`;
+        console.error("❌ SMTP Error during signup:", mailErr.message);
+        tempUsers.delete(email);
+        return res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
       }
 
-      // Always return 201 Created and allow registration to proceed
-      res.status(201).json({ 
-        success: true, 
-        message: 'Registration successful! Verification code sent.', 
-        otp: otpCode,
-        mailStatus: mailStatus
-      });
+      res.status(201).json({ success: true, message: 'Verification code sent to your email.' });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
@@ -418,13 +414,12 @@ async function startServer() {
       console.log(`🔄 RESEND OTP CODE FOR ${email}: ${otpCode}`);
       console.log(`===========================================\n`);
 
-      // Send the email with a 4-second timeout limit to avoid getting stuck on REGISTERING...
-      let mailStatus = 'Email sent successfully via SMTP';
+      // Send verification email with 10-second timeout
       try {
-        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out. Check your SMTP settings.')), 4000));
+        const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out after 10s.')), 10000));
         const info = await Promise.race([
           transporter.sendMail({
-            from: process.env.EMAIL_USER,
+            from: emailFrom,
             to: tempUser.email,
             subject: 'Your Chikitsa Verification Code',
             text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
@@ -432,19 +427,13 @@ async function startServer() {
           }),
           mailTimeout
         ]);
-        if (info && info.response) {
-          mailStatus = `Email accepted by SMTP: ${info.response}`;
-        }
+        console.log(`✅ Resend email sent to ${email}: ${info?.response}`);
       } catch (mailErr) {
-        console.error("SMTP Error:", mailErr);
-        mailStatus = `Email failed to send: ${mailErr.message}`;
+        console.error("❌ SMTP Error during resend:", mailErr.message);
+        return res.status(500).json({ error: 'Failed to resend verification email. Please try again.' });
       }
 
-      res.json({ 
-        message: 'Verification code resent', 
-        otp: otpCode,
-        mailStatus: mailStatus
-      });
+      res.json({ message: 'Verification code resent to your email.' });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error: ' + error.message });
     }

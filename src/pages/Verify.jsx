@@ -14,11 +14,8 @@ export default function Verify() {
 
   // Email passed via state from Signup or Login
   const email = location.state?.email || '';
-  const initialOtp = location.state?.otp || '';
 
-  const [resendStatus, setResendStatus] = useState(
-    initialOtp ? `Your verification code is: ${initialOtp}` : ''
-  );
+  const [resendStatus, setResendStatus] = useState('');
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -76,7 +73,7 @@ export default function Verify() {
         throw new Error(data.error || 'Failed to resend code');
       }
 
-      setResendStatus(`New code generated! (Fallback code: ${data.otp})`);
+      setResendStatus('A new code has been sent to your email.');
     } catch (err) {
       setError(err.message);
     }
