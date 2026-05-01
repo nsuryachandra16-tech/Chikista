@@ -1,0 +1,14 @@
+{
+  "name": "Chikitsa",
+  "description": "A production-grade AI-powered Clinical Intelligence SaaS platform for health monitoring and diagnosis support.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "Clinical Intelligence",
+    "Symptom Investigation",
+    "Health Reports",
+    "Medicine Info",
+    "Analytics Dashboard"
+  ]
+}

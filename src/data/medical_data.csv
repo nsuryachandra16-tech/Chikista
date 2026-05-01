@@ -1,0 +1,11 @@
+symptom,specialist,urgency,category
+chest pain,Cardiologist,High,Cardiac
+shortness of breath,Pulmonologist,High,Respiratory
+blurred vision,Ophthalmologist,Medium,Neurological
+persistent cough,General Physician,Low,Respiratory
+joint swelling,Rheumatologist,Medium,Orthopedic
+severe headache,Neurologist,High,Neurological
+skin rash,Dermatologist,Low,Dermatology
+abdominal pain,Gastroenterologist,Medium,Gastrointestinal
+fever,General Physician,Low,General
+ear ache,ENT Specialist,Medium,Otolaryngology
