@@ -15,15 +15,16 @@ const PORT = 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'chikitsa-super-secret-key';
 
 // MySQL Configuration
+const isAiven = (process.env.MYSQL_HOST || process.env.DB_HOST || '').includes('aivencloud.com');
 const connectionConfig = {
-  host: process.env.MYSQL_HOST || 'localhost',
-  port: parseInt(process.env.MYSQL_PORT || '3306', 10),
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || 'SURYA_1416',
-  ssl: process.env.MYSQL_SSL === 'true' || process.env.MYSQL_SSL === 'REQUIRED' ? { rejectUnauthorized: false } : undefined,
+  host: process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.MYSQL_PORT || process.env.DB_PORT || '3306', 10),
+  user: process.env.MYSQL_USER || process.env.DB_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || 'SURYA_1416',
+  ssl: isAiven || process.env.MYSQL_SSL === 'true' || process.env.MYSQL_SSL === 'REQUIRED' ? { rejectUnauthorized: false } : undefined,
 };
 
-const DB_NAME = process.env.MYSQL_DATABASE || 'Chikitisa_Ai';
+const DB_NAME = process.env.MYSQL_DATABASE || process.env.DB_NAME || 'Chikitisa_Ai';
 
 // Initialize and auto-create MySQL database if it doesn't exist
 try {
