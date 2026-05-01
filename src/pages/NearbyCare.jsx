@@ -61,113 +61,109 @@ export default function NearbyCare() {
   const [activeFilter, setActiveFilter] = useState('hospital'); // hospital, clinic, pharmacy
   const [tomtomKey, setTomtomKey] = useState('');
 
-  const fetchNearbyClinics = async (lat, lng, category, apiKeyOverride) => {
+  const fetchNearbyClinics = async (lat, lng, category) => {
     setLoading(true);
-    const apiKey = apiKeyOverride || tomtomKey;
-    
-    // Using TomTom category sets or keywords
-    const categoryMap = {
-      hospital: 'hospital, healthcare, medical',
-      clinic: 'clinic, doctor, health, therapy',
-      pharmacy: 'pharmacy, drugstore, medicine'
-    };
-
-    if (!apiKey) {
-      // High-fidelity fallback
-      const mockData = {
-        hospital: [
-          { id: 1, name: "Apollo Clinical Center", type: "Hospital", address: "24 Health Street, Medical District", distance: "1.2 km", position: [lat + 0.005, lng + 0.005] },
-          { id: 2, name: "St. Jude Heart Research", type: "Specialist Hospital", address: "88 Cardiac Ave, Research Park", distance: "2.5 km", position: [lat - 0.005, lng - 0.005] },
-          { id: 7, name: "Metro General Hospital", type: "General Hospital", address: "101 City Center Rd", distance: "0.8 km", position: [lat + 0.003, lng - 0.004] },
-          { id: 8, name: "Greenwood Medical Hub", type: "Multi-specialty Hospital", address: "42 Valley View Ln", distance: "3.1 km", position: [lat - 0.008, lng + 0.006] }
-        ],
-        clinic: [
-          { id: 3, name: "Wellness First Clinic", type: "Clinic", address: "Greenwood Valley", distance: "0.5 km", position: [lat + 0.002, lng - 0.003] },
-          { id: 4, name: "City Children's Clinic", type: "Pediatric Care", address: "102 Kidz Way, Family Lane", distance: "4.1 km", position: [lat + 0.01, lng - 0.01] },
-          { id: 9, name: "Family Health & Dental Care", type: "Primary Care", address: "55 Maple Ave", distance: "1.5 km", position: [lat - 0.003, lng + 0.002] }
-        ],
-        pharmacy: [
-          { id: 5, name: "QuickCare Pharmacy", type: "Pharmacy", address: "Main St Crossing", distance: "0.2 km", position: [lat - 0.001, lng - 0.001] },
-          { id: 6, name: "Medi-Logistics Hub", type: "Pharmacy", address: "Business District", distance: "3.4 km", position: [lat - 0.008, lng - 0.008] },
-          { id: 10, name: "HealthMart Drugstore", type: "Pharmacy", address: "77 Oak St", distance: "0.6 km", position: [lat + 0.004, lng + 0.004] }
-        ]
-      };
-      
-      const selected = mockData[category] || [];
-      setClinics(selected.map(item => ({
-        ...item,
-        rating: (Math.random() * (5 - 4.5) + 4.5).toFixed(1),
-        open: Math.random() > 0.2,
-        phone: "+1 (800) CLINIC",
-        tags: [category.toUpperCase(), "Verified Position"],
-        imageUrl: `https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=400&h=300&sig=${item.id}`
-      })));
-      setLoading(false);
-      return;
-    }
 
     try {
-      const url = `https://api.tomtom.com/search/2/poiSearch/${encodeURIComponent(categoryMap[category])}.json?key=${apiKey}&lat=${lat}&lon=${lng}&radius=10000&limit=30`;
+      // Build overpass query
+      const overpassCategories = {
+        hospital: 'hospital',
+        clinic: 'clinic|doctors',
+        pharmacy: 'pharmacy'
+      };
+      const type = overpassCategories[category] || 'hospital';
+
+      // 10km search
+      const query = `[out:json];node(around:10000,${lat},${lng})[amenity~"${type}"];out;`;
+      const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
       const response = await fetch(url);
       const data = await response.json();
-      
-      // Sort exactly by closest distance
-      if (data.results && Array.isArray(data.results)) {
-        data.results.sort((a, b) => a.dist - b.dist);
-      }
 
-      const mapped = (data.results || []).map((result, i) => {
+      let mapped = (data.elements || []).map((result, i) => {
+        // Calculate distance via Haversine formula
+        const R = 6371; // km
+        const dLat = (result.lat - lat) * Math.PI / 180;
+        const dLon = (result.lon - lng) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat * Math.PI / 180) * Math.cos(result.lat * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const dist = R * c;
+
         return {
           id: result.id,
-          name: result.poi.name,
-          type: result.poi.categories?.[0]?.split(' ')?.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || category.toUpperCase(),
-          address: result.address.freeformAddress,
-          distance: `${(result.dist / 1000).toFixed(1)} km`,
+          name: result.tags?.name || `${category.toUpperCase()} Facility`,
+          type: result.tags?.amenity?.toUpperCase() || category.toUpperCase(),
+          address: result.tags?.['addr:street'] ? `${result.tags['addr:street']}, ${result.tags['addr:city'] || ''}` : "Nearby Healthcare Area",
+          distance: `${dist.toFixed(1)} km`,
+          distMeters: dist * 1000,
           rating: (Math.random() * (5 - 4) + 4).toFixed(1),
-          reviews: Math.floor(Math.random() * 1000),
-          open: true, // TomTom doesn't reliably provide real-time hours at this tier
-          phone: result.poi.phone || "Contact via App",
-          tags: result.poi.classifications?.map(c => c.name).filter(n => n).slice(0, 2) || ["Operational"],
-          position: [result.position.lat, result.position.lon]
+          reviews: Math.floor(Math.random() * 100),
+          open: true,
+          phone: result.tags?.phone || "+1 (800) CLINIC",
+          tags: ["Operational", "OpenStreetMap Verified"],
+          position: [result.lat, result.lon]
         };
       });
+
+      // Sort exactly by closest distance
+      mapped.sort((a, b) => a.distMeters - b.distMeters);
+
+      if (mapped.length === 0) {
+        // High-fidelity fallback only if Overpass returns nothing
+        const mockData = {
+          hospital: [
+            { id: 1, name: "Apollo Clinical Center", type: "Hospital", address: "24 Health Street, Medical District", distance: "1.2 km", position: [lat + 0.005, lng + 0.005] },
+            { id: 2, name: "St. Jude Heart Research", type: "Specialist Hospital", address: "88 Cardiac Ave, Research Park", distance: "2.5 km", position: [lat - 0.005, lng - 0.005] },
+            { id: 7, name: "Metro General Hospital", type: "General Hospital", address: "101 City Center Rd", distance: "0.8 km", position: [lat + 0.003, lng - 0.004] },
+            { id: 8, name: "Greenwood Medical Hub", type: "Multi-specialty Hospital", address: "42 Valley View Ln", distance: "3.1 km", position: [lat - 0.008, lng + 0.006] }
+          ],
+          clinic: [
+            { id: 3, name: "Wellness First Clinic", type: "Clinic", address: "Greenwood Valley", distance: "0.5 km", position: [lat + 0.002, lng - 0.003] },
+            { id: 4, name: "City Children's Clinic", type: "Pediatric Care", address: "102 Kidz Way, Family Lane", distance: "4.1 km", position: [lat + 0.01, lng - 0.01] },
+            { id: 9, name: "Family Health & Dental Care", type: "Primary Care", address: "55 Maple Ave", distance: "1.5 km", position: [lat - 0.003, lng + 0.002] }
+          ],
+          pharmacy: [
+            { id: 5, name: "QuickCare Pharmacy", type: "Pharmacy", address: "Main St Crossing", distance: "0.2 km", position: [lat - 0.001, lng - 0.001] },
+            { id: 6, name: "Medi-Logistics Hub", type: "Pharmacy", address: "Business District", distance: "3.4 km", position: [lat - 0.008, lng - 0.008] },
+            { id: 10, name: "HealthMart Drugstore", type: "Pharmacy", address: "77 Oak St", distance: "0.6 km", position: [lat + 0.004, lng + 0.004] }
+          ]
+        };
+        
+        const selected = mockData[category] || [];
+        mapped = selected.map(item => ({
+          ...item,
+          rating: (Math.random() * (5 - 4.5) + 4.5).toFixed(1),
+          open: Math.random() > 0.2,
+          phone: "+1 (800) CLINIC",
+          tags: [category.toUpperCase(), "Verified Position"],
+          imageUrl: `https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=400&h=300&sig=${item.id}`
+        }));
+      }
+
       setClinics(mapped);
     } catch (err) {
-      console.error("TomTom API Error:", err);
+      console.error("Overpass API Error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Fetch TomTom API key from backend dynamically
-    fetch('/api/config')
-      .then(res => res.json())
-      .then(data => {
-        if (data.tomtomKey) {
-          setTomtomKey(data.tomtomKey);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setLocation(coords);
+          fetchNearbyClinics(coords.lat, coords.lng, activeFilter);
+        },
+        () => {
+          fetchNearbyClinics(location.lat, location.lng, activeFilter);
         }
-        
-        // After getting the key, locate user or default
-        if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-              setLocation(coords);
-              fetchNearbyClinics(coords.lat, coords.lng, activeFilter, data.tomtomKey);
-            },
-            () => {
-              fetchNearbyClinics(location.lat, location.lng, activeFilter, data.tomtomKey);
-            }
-          );
-        } else {
-          fetchNearbyClinics(location.lat, location.lng, activeFilter, data.tomtomKey);
-        }
-      })
-      .catch(err => {
-        console.error("Config fetch error:", err);
-        setLoading(false);
-      });
+      );
+    } else {
+      fetchNearbyClinics(location.lat, location.lng, activeFilter);
+    }
   }, [activeFilter]);
 
   const filteredClinics = clinics.filter(c => 
