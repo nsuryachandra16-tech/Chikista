@@ -109,8 +109,8 @@ export default function NearbyCare() {
       // Sort exactly by closest distance
       mapped.sort((a, b) => a.distMeters - b.distMeters);
       
-      // Keep only top 6 to prevent chaos
-      mapped = mapped.slice(0, 6);
+      // Keep only top 7 to prevent chaos
+      mapped = mapped.slice(0, 7);
 
       if (mapped.length === 0) {
         // High-fidelity fallback only if Overpass returns nothing
