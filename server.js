@@ -336,9 +336,10 @@ async function startServer() {
 
       // Send the email via Outlook in the background
       // Send the email with a 4-second timeout limit to avoid getting stuck on REGISTERING...
+      let mailStatus = 'Email sent successfully via SMTP';
       try {
         const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out. Check your SMTP settings.')), 4000));
-        await Promise.race([
+        const info = await Promise.race([
           transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
@@ -348,18 +349,21 @@ async function startServer() {
           }),
           mailTimeout
         ]);
+        if (info && info.response) {
+          mailStatus = `Email accepted by SMTP: ${info.response}`;
+        }
       } catch (mailErr) {
-        console.error("SMTP Error:", mailErr);
-        // Fallback Mode: Do not block registration! Let the user continue to the OTP screen.
-        // We still keep the tempUser in memory so the user can use the OTP immediately.
-        return res.status(201).json({ 
-          success: true, 
-          message: 'Registration successful! Enter your verification code.',
-          otp: otpCode 
-        });
+        console.error("SMTP Error during signup:", mailErr);
+        mailStatus = `Email failed to send: ${mailErr.message}`;
       }
 
-      res.status(201).json({ success: true, message: 'Verification code sent', otp: otpCode });
+      // Always return 201 Created and allow registration to proceed
+      res.status(201).json({ 
+        success: true, 
+        message: 'Registration successful! Verification code sent.', 
+        otp: otpCode,
+        mailStatus: mailStatus
+      });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
@@ -415,9 +419,10 @@ async function startServer() {
       console.log(`===========================================\n`);
 
       // Send the email with a 4-second timeout limit to avoid getting stuck on REGISTERING...
+      let mailStatus = 'Email sent successfully via SMTP';
       try {
         const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out. Check your SMTP settings.')), 4000));
-        await Promise.race([
+        const info = await Promise.race([
           transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: tempUser.email,
@@ -427,16 +432,19 @@ async function startServer() {
           }),
           mailTimeout
         ]);
+        if (info && info.response) {
+          mailStatus = `Email accepted by SMTP: ${info.response}`;
+        }
       } catch (mailErr) {
         console.error("SMTP Error:", mailErr);
-        // Fallback Mode: Do not block code resending. Let them enter the code.
-        return res.json({ 
-          message: 'Verification code regenerated! Enter the code.',
-          otp: otpCode 
-        });
+        mailStatus = `Email failed to send: ${mailErr.message}`;
       }
 
-      res.json({ message: 'Verification code resent', otp: otpCode });
+      res.json({ 
+        message: 'Verification code resent', 
+        otp: otpCode,
+        mailStatus: mailStatus
+      });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
