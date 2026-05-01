@@ -26,9 +26,16 @@ const connectionConfig = {
 const DB_NAME = process.env.MYSQL_DATABASE || 'Chikitisa_Ai';
 
 // Initialize and auto-create MySQL database if it doesn't exist
-const initConnection = await mysql.createConnection(connectionConfig);
-await initConnection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
-await initConnection.end();
+try {
+  const initConnection = await mysql.createConnection({
+    ...connectionConfig,
+    database: DB_NAME === 'Chikitisa_Ai' ? undefined : DB_NAME
+  });
+  await initConnection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
+  await initConnection.end();
+} catch (err) {
+  console.log('Database initialization notice (can be ignored on managed databases like Aiven):', err.message);
+}
 
 const pool = mysql.createPool({
   ...connectionConfig,
