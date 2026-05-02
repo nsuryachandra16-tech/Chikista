@@ -76,7 +76,7 @@ const VisionaryCard = ({ name, title, quote, color, index, image }) => {
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">{name}</h3>
+              <h3 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">{name}</h3>
               <p className={cn(
                 "text-[10px] font-black uppercase tracking-[0.3em]",
                 color === 'emerald' ? 'text-emerald-500' : 'text-sky-500'
@@ -142,7 +142,7 @@ export default function AboutUs() {
           <div className="inline-flex items-center gap-3 px-6 py-2 bg-medical-50 dark:bg-medical-900/30 rounded-full border border-medical-100 dark:border-medical-800 text-medical-600 dark:text-medical-400 font-black text-[10px] uppercase tracking-widest">
              <Heart size={14} fill="currentColor" /> The Visionaries
           </div>
-          <h1 className="text-7xl md:text-8xl font-black tracking-tighter uppercase leading-none text-slate-900 dark:text-white">
+          <h1 className="text-4xl sm:text-7xl md:text-8xl font-black tracking-tighter uppercase leading-none text-slate-900 dark:text-white">
             Beyond the <span className="text-medical-500">Interface</span>
           </h1>
           <p className="text-slate-500 font-bold text-xl max-w-2xl mx-auto">
@@ -196,10 +196,10 @@ export default function AboutUs() {
       </section>
 
       {/* Final CTA/Vision */}
-      <section className="p-16 bg-slate-900 dark:bg-white rounded-[4rem] text-center space-y-8 relative overflow-hidden">
+      <section className="p-8 sm:p-16 bg-slate-900 dark:bg-white rounded-[2rem] sm:rounded-[4rem] text-center space-y-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative z-10 space-y-6">
-           <h2 className="text-4xl font-black text-white dark:text-slate-900 uppercase tracking-tighter">Join the Chikitsa Movement</h2>
+           <h2 className="text-2xl sm:text-4xl font-black text-white dark:text-slate-900 uppercase tracking-tighter">Join the Chikitsa Movement</h2>
            <p className="text-slate-400 dark:text-slate-500 font-bold text-lg max-w-xl mx-auto uppercase tracking-widest text-xs">A local-first healthcare engine designed for the future of decentralized care logs.</p>
            <button className="px-12 py-6 bg-medical-500 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-medical-500/20 hover:scale-105 transition-all">
              Initialize Health Cloud

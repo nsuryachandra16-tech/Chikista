@@ -50,7 +50,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-6xl md:text-8xl font-black tracking-tight mb-10 leading-[0.9] uppercase"
+          className="text-3xl sm:text-6xl md:text-8xl font-black tracking-tight mb-10 leading-[0.9] uppercase"
         >
           Clinical Minds. <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-medical-600 to-emerald-600">AI Precision.</span>

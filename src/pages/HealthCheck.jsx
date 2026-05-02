@@ -26,13 +26,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function HealthCheck() {
   const { user, authFetch } = useAuth();
-  const [messages, setMessages] = useState([
-    { 
-      role: 'assistant', 
-      content: `Hello ${user?.name?.split(' ')[0]}, I'm your AI Clinical Assistant. Please describe any symptoms you're experiencing or health concerns you have today.`,
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [clinicalContext, setClinicalContext] = useState({
@@ -44,6 +38,18 @@ export default function HealthCheck() {
 
   const [syncing, setSyncing] = useState(false);
   const [isSynced, setIsSynced] = useState(false);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        { 
+          role: 'assistant', 
+          content: `Hello ${user?.name?.split(' ')[0] || 'there'}, I'm your AI Clinical Assistant. Please describe any symptoms you're experiencing or health concerns you have today.`,
+          timestamp: new Date()
+        }
+      ]);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -80,7 +86,7 @@ export default function HealthCheck() {
         - Must include tag: [FINAL_VERDICT]
         - A clear "Clinical Recommendation" naming the specialist.
         - Use exactly this format for the disease: "Suspected Condition: [Disease Name]"
-        - Medicine Suggestions: Name 1-2 generic medications or relief measures.
+        - Medicine Suggestions: Name 1-2 generic medications or relief measures WITH clear, common dosages and typical intake instructions (e.g. Paracetamol 500mg twice a day).
         - Kind Suggestions: 1-2 empathy and lifestyle tips.
         - Likely Condition in simple terms.
         - Medical Disclaimer.
@@ -92,6 +98,8 @@ export default function HealthCheck() {
         - General/Fever -> General Physician
         - Skin -> Dermatologist
         - Brain/Nerves -> Neurologist
+        - Joint/Bones -> Orthopedic
+        - Stomach/Abdomen -> Gastroenterologist
         
         User input: ${currentInput}
       `;

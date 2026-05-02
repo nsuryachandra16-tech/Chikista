@@ -24,7 +24,7 @@ export default function Appointments() {
     <div className="max-w-6xl mx-auto space-y-12">
       <div className="flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight uppercase">ConsultConnect</h1>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight uppercase">ConsultConnect</h1>
           <p className="text-slate-500 font-medium tracking-tight">Direct clinical access to top-tier medical specialists.</p>
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function Appointments() {
            </div>
            
            <div className="space-y-4">
-              <h2 className="text-4xl font-black uppercase tracking-tighter">Feature <span className="text-medical-500">Coming Soon</span></h2>
+              <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">Feature <span className="text-medical-500">Coming Soon</span></h2>
               <div className="p-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-3xl shadow-sm italic text-slate-600 dark:text-slate-400 font-bold leading-relaxed">
                 "We are currently partnering with major clinical centers and hospital networks to provide a direct, secure integration for seamless appointment scheduling. Our goal is to bring decentralized scheduling protocols directly to your Chikitsa workspace."
               </div>
