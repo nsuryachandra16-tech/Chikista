@@ -16,7 +16,7 @@ import {
   Zap,
   MapPin
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import { cn } from '../lib/utils';
@@ -25,21 +25,23 @@ import Card from '../components/Card';
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function DiseaseInfo() {
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+
+  const [query, setQuery] = useState(initialQ);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim() || loading) return;
+  const fetchDisease = async (searchQuery) => {
+    if (!searchQuery.trim() || loading) return;
 
     setLoading(true);
     setResult(null);
     setError(null);
 
     const prompt = `
-      Provide detailed clinical information about the disease or condition: "${query}".
+      Provide detailed clinical information about the disease or condition: "${searchQuery}".
       Return the data in a structured JSON format with the following fields:
       - name: Common name of the condition
       - symptoms: List of primary symptoms
@@ -67,6 +69,20 @@ export default function DiseaseInfo() {
       setLoading(false);
     }
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    setSearchParams({ q: query });
+    fetchDisease(query);
+  };
+
+  React.useEffect(() => {
+    if (initialQ) {
+      setQuery(initialQ);
+      fetchDisease(initialQ);
+    }
+  }, [initialQ]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-12 pb-12">
