@@ -1,4 +1,3 @@
-
 # Chikitsa: Clinical Suite
 
 Chikitsa is an advanced, privacy-first clinical tracking and diagnostics platform designed to elevate your healthcare management and clinical scheduling experience.

@@ -163,19 +163,19 @@ export default function AboutUs() {
             index={0}
             name={<>Vissamsetti<br />Srujan</>}
             nameString="Vissamsetti Srujan"
-            title="Strategic Planner"
-            quote="Came up with the initial idea for the platform, leading the roadmap and high-level vision from the very beginning."
+            title="Ideation Partner"
+            quote="Contributed the original initial idea for the project, laying the starting ground."
             color="sky"
-            badge="Ideation"
+            badge="Original Idea"
           />
           <VisionaryCard 
             index={1}
             name={<>Nimmagadda<br />Suryachandra</>}
             nameString="Nimmagadda Suryachandra"
             title="Lead Developer & Architect"
-            quote="Turned the core ideas from our discussions into a fully functional and complete healthcare application."
+            quote="Designed, architected, and engineered the entire application from top to bottom, bringing the project to life."
             color="emerald"
-            badge="Execution"
+            badge="Full Development & Execution"
           />
         </div>
       </section>
