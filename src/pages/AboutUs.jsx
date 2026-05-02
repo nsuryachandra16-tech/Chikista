@@ -179,7 +179,7 @@ export default function AboutUs() {
             quote="Turned the core ideas from our discussions into a fully functional and complete healthcare application, changing the original idea into a working app."
             color="emerald"
             badge="Execution"
-            image="/images/suryachandra.png"
+            image="/images/surya.jpeg"
           />
         </div>
       </section>
