@@ -14,7 +14,7 @@ import {
 import Card from '../components/Card';
 import { cn } from '../lib/utils';
 
-const VisionaryCard = ({ name, title, quote, color, index, image }) => {
+const VisionaryCard = ({ name, title, quote, color, index, image, badge }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -76,9 +76,17 @@ const VisionaryCard = ({ name, title, quote, color, index, image }) => {
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">{name}</h3>
+              {badge && (
+                <div className={cn(
+                  "inline-flex items-center gap-2 px-3 py-1 border rounded-full font-black text-[9px] uppercase tracking-widest w-fit mb-2 shadow-sm",
+                  color === 'emerald' ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" : "bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 border-sky-200 dark:border-sky-800"
+                )}>
+                  {badge}
+                </div>
+              )}
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-tight">{name}</h3>
               <p className={cn(
-                "text-[10px] font-black uppercase tracking-[0.3em]",
+                "text-[10px] font-black uppercase tracking-[0.3em] pt-1",
                 color === 'emerald' ? 'text-emerald-500' : 'text-sky-500'
               )}>
                 {title}
@@ -89,7 +97,7 @@ const VisionaryCard = ({ name, title, quote, color, index, image }) => {
           <div className="space-y-8">
             <div className="relative">
               <Quote className="absolute -top-4 -left-4 w-12 h-12 text-slate-100 dark:text-white/5" />
-              <p className="text-lg font-bold text-slate-600 dark:text-slate-300 italic leading-relaxed relative z-10">
+              <p className="text-base font-bold text-slate-600 dark:text-slate-300 italic leading-relaxed relative z-10">
                 "{quote}"
               </p>
             </div>
@@ -153,17 +161,19 @@ export default function AboutUs() {
         <div className="flex flex-col lg:flex-row items-center justify-center gap-12 pt-12">
           <VisionaryCard 
             index={0}
-            name="Lead Architect"
+            name="Nimmagadda Suryachandra"
             title="Design & Systems Visionary"
             quote="Software should do more than just manage data; it should empower the human spirit through clinical clarity."
             color="emerald"
+            badge="Lead Architect & Founder"
           />
           <VisionaryCard 
             index={1}
-            name="Strategic Partner"
-            title="Product & Ops Lead"
+            name="Vissamsetti Srujan"
+            title="Systems Operations Lead"
             quote="Great healthcare is built on the intersection of impeccable design and ethical technical foundations."
             color="sky"
+            badge="Co-Founder"
           />
         </div>
       </section>
