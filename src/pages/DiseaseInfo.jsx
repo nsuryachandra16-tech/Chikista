@@ -80,20 +80,22 @@ export default function DiseaseInfo() {
         </div>
       </div>
 
-      <div className="relative group max-w-3xl mx-auto">
-        <form onSubmit={handleSearch} className="relative">
-          <input 
-            type="text" 
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search condition (e.g. Type 2 Diabetes, Hypertension)..." 
-            className="w-full h-20 pl-16 pr-32 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-[2.5rem] focus:ring-8 focus:ring-medical-500/10 focus:border-medical-500 outline-none transition-all text-xl font-bold tracking-tight shadow-xl"
-          />
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={24} />
+      <div className="relative group max-w-3xl mx-auto px-4 sm:px-0">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row sm:items-center gap-4 relative">
+          <div className="relative flex-1">
+            <input 
+              type="text" 
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search condition (e.g. Type 2 Diabetes)..." 
+              className="w-full h-16 sm:h-20 pl-14 sm:pl-16 pr-6 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-[2rem] sm:rounded-[2.5rem] focus:ring-8 focus:ring-medical-500/10 focus:border-medical-500 outline-none transition-all text-base sm:text-xl font-bold tracking-tight shadow-xl"
+            />
+            <Search className="absolute left-5 sm:left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          </div>
           <button 
             type="submit"
             disabled={!query.trim() || loading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 px-10 h-14 bg-medical-500 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest hover:bg-medical-600 disabled:opacity-50 transition-all flex items-center gap-2 shadow-lg shadow-medical-500/20"
+            className="w-full sm:w-auto h-14 sm:h-16 px-8 sm:px-10 bg-medical-500 text-white rounded-[1.5rem] sm:rounded-[1.75rem] font-black text-sm uppercase tracking-widest hover:bg-medical-600 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-medical-500/20 flex-shrink-0"
           >
             {loading ? "Analyzing..." : "Analyze"}
           </button>

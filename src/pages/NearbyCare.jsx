@@ -183,7 +183,7 @@ export default function NearbyCare() {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto whitespace-nowrap no-scrollbar max-w-full flex-shrink-0">
+          <div className="grid grid-cols-3 sm:flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 w-full sm:w-auto flex-shrink-0 gap-1">
              {[
                { id: 'hospital', label: 'Hospitals', icon: Hospital },
                { id: 'clinic', label: 'Clinics', icon: Stethoscope },
@@ -193,12 +193,12 @@ export default function NearbyCare() {
                  key={f.id}
                  onClick={() => setActiveFilter(f.id)}
                  className={cn(
-                   "px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all gap-2 flex items-center flex-shrink-0",
+                   "px-2 sm:px-5 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest transition-all gap-1 sm:gap-2 flex items-center justify-center sm:justify-start flex-shrink-0",
                    activeFilter === f.id ? "bg-white dark:bg-slate-800 text-medical-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
                  )}
                >
-                 <f.icon size={14} />
-                 {f.label}
+                 <f.icon size={12} className="sm:w-3.5 sm:h-3.5" />
+                 <span className="truncate">{f.label}</span>
                </button>
              ))}
           </div>
