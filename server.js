@@ -38,12 +38,16 @@ const transporter = nodemailer.createTransport({
 
 console.log(`📧 SMTP configured: host=${smtpHost}, port=${smtpPort}, user=${process.env.EMAIL_USER}, from=${emailFrom}`);
 
-// Verify SMTP connection on startup
-transporter.verify()
-  .then(() => console.log('✅ SMTP connection verified successfully!'))
-  .catch(err => console.error('❌ SMTP connection verification FAILED:', err.message));
+// Verify SMTP connection on startup only if BREVO_API_KEY is not set
+if (!process.env.BREVO_API_KEY) {
+  transporter.verify()
+    .then(() => console.log('✅ SMTP connection verified successfully!'))
+    .catch(err => console.error('❌ SMTP connection verification FAILED:', err.message));
+} else {
+  console.log('📬 Using Brevo HTTP API for email delivery (Render safe)');
+}
 
-// Helper: Send verification email (SMTP with Brevo HTTP API fallback)
+// Helper: Send verification email (Brevo HTTP API with SMTP fallback)
 async function sendVerificationEmail(toEmail, toName, otpCode) {
   const mailOptions = {
     from: emailFrom,
@@ -53,25 +57,16 @@ async function sendVerificationEmail(toEmail, toName, otpCode) {
     html: generateEmailTemplate(toName, otpCode)
   };
 
-  // Try SMTP first
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ SMTP email sent to ${toEmail}: ${info?.response}`);
-    return { success: true, method: 'smtp' };
-  } catch (smtpErr) {
-    console.error(`❌ SMTP failed for ${toEmail}: ${smtpErr.message}`);
-  }
-
-  // Fallback: Brevo HTTP API (works even if SMTP port is blocked)
+  // 1. Try Brevo HTTP API first (Works perfectly even if SMTP is blocked)
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (brevoApiKey) {
     try {
-      console.log(`🔄 Trying Brevo HTTP API fallback for ${toEmail}...`);
+      console.log(`🔄 Sending email via Brevo HTTP API for ${toEmail}...`);
       const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
           'accept': 'application/json',
-          'api-key': brevoApiKey,
+          'api-key': brevoApiKey.trim(),
           'content-type': 'application/json'
         },
         body: JSON.stringify({
@@ -86,11 +81,20 @@ async function sendVerificationEmail(toEmail, toName, otpCode) {
         console.log(`✅ Brevo HTTP API email sent to ${toEmail}:`, result);
         return { success: true, method: 'brevo-api' };
       } else {
-        console.error(`❌ Brevo HTTP API failed:`, result);
+        console.error(`❌ Brevo HTTP API failed for ${toEmail}:`, result);
       }
     } catch (apiErr) {
-      console.error(`❌ Brevo HTTP API error:`, apiErr.message);
+      console.error(`❌ Brevo HTTP API error for ${toEmail}:`, apiErr.message);
     }
+  }
+
+  // 2. Try SMTP as fallback
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ SMTP email sent to ${toEmail}: ${info?.response}`);
+    return { success: true, method: 'smtp' };
+  } catch (smtpErr) {
+    console.error(`❌ SMTP fallback failed for ${toEmail}: ${smtpErr.message}`);
   }
 
   throw new Error('All email delivery methods failed. Check Render logs for details.');
