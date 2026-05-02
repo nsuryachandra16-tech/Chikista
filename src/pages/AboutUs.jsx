@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { 
-  ShieldCheck, 
-  TrendingUp, 
-  Globe, 
+import {
+  ShieldCheck,
+  TrendingUp,
+  Globe,
   Quote,
   Github,
   Twitter,
@@ -118,20 +118,20 @@ const VisionaryCard = ({ name, nameString, title, quote, color, index, image, ba
 
 export default function AboutUs() {
   const pillars = [
-    { 
-      title: 'Patient Privacy First', 
+    {
+      title: 'Patient Privacy First',
       desc: 'Fully encrypted clinical logs and secure JWT-based identity tokens ensure data remains exactly where it belongs.',
       icon: ShieldCheck,
       color: 'bg-emerald-500'
     },
-    { 
-      title: 'Accessible Insights', 
+    {
+      title: 'Accessible Insights',
       desc: 'Transforming dense medical jargon into clinical trend analysis using high-end Recharts visualization metrics.',
       icon: TrendingUp,
       color: 'bg-sky-500'
     },
-    { 
-      title: 'Care Networking', 
+    {
+      title: 'Care Networking',
       desc: 'Low-latency infrastructure connecting patients to local health hubs through advanced spatial mapping.',
       icon: Globe,
       color: 'bg-rose-500'
@@ -143,12 +143,12 @@ export default function AboutUs() {
       {/* Hero Section */}
       <section className="relative text-center space-y-10 pt-10">
         <motion.div
-           initial={{ opacity: 0, scale: 0.9 }}
-           animate={{ opacity: 1, scale: 1 }}
-           className="space-y-4"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="space-y-4"
         >
           <div className="inline-flex items-center gap-3 px-6 py-2 bg-medical-50 dark:bg-medical-900/30 rounded-full border border-medical-100 dark:border-medical-800 text-medical-600 dark:text-medical-400 font-black text-[10px] uppercase tracking-widest">
-             <Heart size={14} fill="currentColor" /> The Visionaries
+            <Heart size={14} fill="currentColor" /> The Visionaries
           </div>
           <h1 className="text-4xl sm:text-7xl md:text-8xl font-black tracking-tighter uppercase leading-none text-slate-900 dark:text-white">
             Beyond the <span className="text-medical-500">Interface</span>
@@ -159,7 +159,7 @@ export default function AboutUs() {
         </motion.div>
 
         <div className="flex flex-col lg:flex-row items-center justify-center gap-12 pt-12">
-          <VisionaryCard 
+          <VisionaryCard
             index={0}
             name={<>Vissamsetti<br />Srujan</>}
             nameString="Vissamsetti Srujan"
@@ -168,12 +168,12 @@ export default function AboutUs() {
             color="sky"
             badge="Ideation"
           />
-          <VisionaryCard 
+          <VisionaryCard
             index={1}
             name={<>Nimmagadda<br />Suryachandra</>}
             nameString="Nimmagadda Suryachandra"
             title="Lead Developer & Architect"
-            quote="Played the crucial part in turning the initial ideas and roadmap into a fully functional and working model."
+            quote="Turned the core ideas and roadmap into a fully functional and complete working app model."
             color="emerald"
             badge="Execution"
           />
@@ -183,27 +183,27 @@ export default function AboutUs() {
       {/* Pillars Section */}
       <section className="space-y-16">
         <div className="text-center space-y-4">
-           <h2 className="text-4xl font-black uppercase tracking-tight">Our Core Pillars</h2>
-           <p className="text-slate-400 font-bold uppercase text-xs tracking-[0.3em]">Deterministic Standards for Better Outcomes</p>
+          <h2 className="text-4xl font-black uppercase tracking-tight">Our Core Pillars</h2>
+          <p className="text-slate-400 font-bold uppercase text-xs tracking-[0.3em]">Deterministic Standards for Better Outcomes</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
-           {pillars.map((p, i) => (
-             <motion.div
-               key={p.title}
-               initial={{ opacity: 0, y: 30 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
-               transition={{ delay: i * 0.1 }}
-               className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-xl group hover:border-medical-500 transition-all"
-             >
-               <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg", p.color)}>
-                  <p.icon size={28} />
-               </div>
-               <h3 className="text-xl font-black uppercase tracking-tight mb-4 text-slate-900 dark:text-white">{p.title}</h3>
-               <p className="text-slate-500 font-medium leading-relaxed">{p.desc}</p>
-             </motion.div>
-           ))}
+          {pillars.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-xl group hover:border-medical-500 transition-all"
+            >
+              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg", p.color)}>
+                <p.icon size={28} />
+              </div>
+              <h3 className="text-xl font-black uppercase tracking-tight mb-4 text-slate-900 dark:text-white">{p.title}</h3>
+              <p className="text-slate-500 font-medium leading-relaxed">{p.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -211,11 +211,11 @@ export default function AboutUs() {
       <section className="p-8 sm:p-16 bg-slate-900 dark:bg-white rounded-[2rem] sm:rounded-[4rem] text-center space-y-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative z-10 space-y-6">
-           <h2 className="text-2xl sm:text-4xl font-black text-white dark:text-slate-900 uppercase tracking-tighter">Join the Chikitsa Movement</h2>
-           <p className="text-slate-400 dark:text-slate-500 font-bold text-lg max-w-xl mx-auto uppercase tracking-widest text-xs">A local-first healthcare engine designed for the future of decentralized care logs.</p>
-           <button className="px-12 py-6 bg-medical-500 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-medical-500/20 hover:scale-105 transition-all">
-             Initialize Health Cloud
-           </button>
+          <h2 className="text-2xl sm:text-4xl font-black text-white dark:text-slate-900 uppercase tracking-tighter">Join the Chikitsa Movement</h2>
+          <p className="text-slate-400 dark:text-slate-500 font-bold text-lg max-w-xl mx-auto uppercase tracking-widest text-xs">A local-first healthcare engine designed for the future of decentralized care logs.</p>
+          <button className="px-12 py-6 bg-medical-500 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-medical-500/20 hover:scale-105 transition-all">
+            Initialize Health Cloud
+          </button>
         </div>
       </section>
     </div>
