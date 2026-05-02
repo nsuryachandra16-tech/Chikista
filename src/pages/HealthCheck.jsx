@@ -481,10 +481,10 @@ export default function HealthCheck() {
                 </div>
                 
                 <div className={cn(
-                  "p-3 md:p-4 rounded-3xl text-sm md:text-base leading-relaxed shadow-lg flex-1",
+                  "p-3 md:p-4 rounded-3xl text-sm md:text-base leading-relaxed shadow-lg min-w-0 break-words",
                   msg.role === 'user' 
-                    ? "bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-white rounded-tr-sm ml-auto max-w-[85%]" 
-                    : "bg-medical-500/10 dark:bg-medical-500/20 border border-medical-500/20 rounded-tl-sm text-slate-800 dark:text-slate-100 w-full"
+                    ? "bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-white rounded-tr-sm ml-auto max-w-[82%]" 
+                    : "bg-medical-500/10 dark:bg-medical-500/20 border border-medical-500/20 rounded-tl-sm text-slate-800 dark:text-slate-100 max-w-[85%] md:max-w-[90%]"
                 )}>
                   {msg.isAnalysis && (
                     <div className="flex items-center gap-2 mb-4 pb-4 border-b border-medical-100 dark:border-medical-800/30 font-black text-medical-600 dark:text-medical-400 text-[9px] uppercase tracking-widest">
