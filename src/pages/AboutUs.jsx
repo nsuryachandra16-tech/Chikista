@@ -65,9 +65,9 @@ const VisionaryCard = ({ name, nameString, title, quote, color, index, image, ba
 
         <div className="relative z-10 h-full flex flex-col justify-between">
           <div className="space-y-6">
-            <div className="flex justify-center">
+            <div className="flex justify-center w-full">
               <div className={cn(
-                "w-28 h-28 rounded-[2rem] flex items-center justify-center text-white shadow-xl overflow-hidden border-2 transition-all duration-500 hover:scale-110 hover:rotate-2",
+                "w-28 h-28 mx-auto rounded-[2rem] flex items-center justify-center text-white shadow-xl overflow-hidden border-2 transition-all duration-500 hover:scale-110 hover:rotate-2",
                 color === 'emerald' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-emerald-300 dark:border-emerald-700 hover:shadow-emerald-500/30' : 'bg-gradient-to-br from-sky-400 to-sky-600 border-sky-300 dark:border-sky-700 hover:shadow-sky-500/30'
               )}>
                 {image ? (
