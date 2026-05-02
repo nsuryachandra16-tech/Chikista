@@ -114,7 +114,7 @@ export default function Home() {
       </div>
 
       {/* Trust Section */}
-      <div className="bg-slate-900 dark:bg-medical-900/20 rounded-[3.5rem] p-12 md:p-20 text-white flex flex-col lg:flex-row items-center justify-between gap-16 relative overflow-hidden">
+      <div className="bg-slate-900 dark:bg-medical-900/20 rounded-[2.5rem] sm:rounded-[3.5rem] p-6 sm:p-12 md:p-20 text-white flex flex-col lg:flex-row items-center justify-between gap-16 relative overflow-hidden">
         <div className="relative z-10 max-w-xl">
            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-white/10">
               <Lock size={12} /> Privacy First Data Architecture
@@ -134,13 +134,13 @@ export default function Home() {
         </div>
         
         <div className="relative z-10 w-full lg:w-auto">
-           <div className="bg-white/5 backdrop-blur-3xl p-10 rounded-[2.5rem] border border-white/10 space-y-8">
+           <div className="bg-white/5 backdrop-blur-3xl p-6 sm:p-10 rounded-[2.5rem] border border-white/10 space-y-8 w-full max-w-sm sm:max-w-none">
               {[
                  { label: 'Clinical Accuracy', val: 98, icon: Activity },
                  { label: 'Response Latency', val: 4, icon: Zap },
                  { label: 'Data Integrity', val: 100, icon: LineChart },
               ].map((stat) => (
-                 <div key={stat.label} className="w-64 space-y-3">
+                 <div key={stat.label} className="w-full lg:w-64 space-y-3">
                     <div className="flex justify-between items-end">
                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{stat.label}</p>
                        <p className="text-sm font-black text-medical-500">{stat.val === 4 ? '4ms' : `${stat.val}%`}</p>
@@ -157,6 +157,7 @@ export default function Home() {
               ))}
            </div>
         </div>
+
 
         {/* Abstract Background */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-medical-500/20 rounded-full blur-[100px]" />

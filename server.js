@@ -200,142 +200,147 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// Seed Table creation
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    bio TEXT,
-    practice_description TEXT,
-    subscription_tier VARCHAR(50) DEFAULT 'free',
-    subscription_expiry DATETIME,
-    created_at VARCHAR(255)
-  );
-`);
-
 try {
-  await pool.query(`ALTER TABLE users ADD COLUMN is_verified TINYINT DEFAULT 1`);
-} catch (e) {}
-try {
-  await pool.query(`ALTER TABLE users ADD COLUMN verification_code VARCHAR(50)`);
-} catch (e) {}
+  // Seed Table creation
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      bio TEXT,
+      practice_description TEXT,
+      subscription_tier VARCHAR(50) DEFAULT 'free',
+      subscription_expiry DATETIME,
+      created_at VARCHAR(255)
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS doctors (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    specialty VARCHAR(255) NOT NULL,
-    experience VARCHAR(255),
-    rating DOUBLE,
-    availability VARCHAR(255)
-  );
-`);
+  try {
+    await pool.query(`ALTER TABLE users ADD COLUMN is_verified TINYINT DEFAULT 1`);
+  } catch (e) {}
+  try {
+    await pool.query(`ALTER TABLE users ADD COLUMN verification_code VARCHAR(50)`);
+  } catch (e) {}
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS reports (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    title VARCHAR(255),
-    specialist VARCHAR(255),
-    status VARCHAR(255),
-    urgency VARCHAR(50),
-    symptoms TEXT,
-    diagnosis TEXT,
-    findings TEXT,
-    vitals TEXT,
-    timestamp VARCHAR(255),
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS doctors (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      specialty VARCHAR(255) NOT NULL,
+      experience VARCHAR(255),
+      rating DOUBLE,
+      availability VARCHAR(255)
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    title VARCHAR(255),
-    message TEXT,
-    \`read\` TINYINT DEFAULT 0,
-    timestamp VARCHAR(255),
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS reports (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      title VARCHAR(255),
+      specialist VARCHAR(255),
+      status VARCHAR(255),
+      urgency VARCHAR(50),
+      symptoms TEXT,
+      diagnosis TEXT,
+      findings TEXT,
+      vitals TEXT,
+      timestamp VARCHAR(255),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS vitals (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    type VARCHAR(100),
-    value DOUBLE,
-    timestamp VARCHAR(255),
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      title VARCHAR(255),
+      message TEXT,
+      \`read\` TINYINT DEFAULT 0,
+      timestamp VARCHAR(255),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS medications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    name VARCHAR(255) NOT NULL,
-    dosage VARCHAR(255),
-    frequency VARCHAR(255),
-    time VARCHAR(255),
-    active TINYINT DEFAULT 1,
-    notifications_enabled TINYINT DEFAULT 0,
-    timestamp VARCHAR(255),
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS vitals (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      type VARCHAR(100),
+      value DOUBLE,
+      timestamp VARCHAR(255),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS medication_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    medication_id INT,
-    user_id INT,
-    status VARCHAR(50) DEFAULT 'taken',
-    timestamp VARCHAR(255),
-    FOREIGN KEY(medication_id) REFERENCES medications(id) ON DELETE CASCADE,
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS medications (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      name VARCHAR(255) NOT NULL,
+      dosage VARCHAR(255),
+      frequency VARCHAR(255),
+      time VARCHAR(255),
+      active TINYINT DEFAULT 1,
+      notifications_enabled TINYINT DEFAULT 0,
+      timestamp VARCHAR(255),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS appointments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    doctor_id INT,
-    date VARCHAR(100),
-    time VARCHAR(100),
-    status VARCHAR(50) DEFAULT 'Scheduled',
-    notes TEXT,
-    timestamp VARCHAR(255),
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY(doctor_id) REFERENCES doctors(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS medication_logs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      medication_id INT,
+      user_id INT,
+      status VARCHAR(50) DEFAULT 'taken',
+      timestamp VARCHAR(255),
+      FOREIGN KEY(medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
 
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS clinical_notes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    category VARCHAR(100),
-    timestamp VARCHAR(255),
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS appointments (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      doctor_id INT,
+      date VARCHAR(100),
+      time VARCHAR(100),
+      status VARCHAR(50) DEFAULT 'Scheduled',
+      notes TEXT,
+      timestamp VARCHAR(255),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY(doctor_id) REFERENCES doctors(id) ON DELETE CASCADE
+    );
+  `);
 
-// Pre-populate Doctors if empty
-const [doctorCountRows] = await pool.query('SELECT COUNT(*) as count FROM doctors');
-const doctorCount = doctorCountRows[0]?.count || 0;
-if (doctorCount === 0) {
-  await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. Sarah Chen', 'Cardiologist', '12 Years', 4.9, 'Mon, Wed, Fri']);
-  await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. Marcus Thorne', 'Neurologist', '15 Years', 4.8, 'Tue, Thu']);
-  await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. Elena Rodriguez', 'Endocrinologist', '8 Years', 4.7, 'Daily']);
-  await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. James Wilson', 'General Physician', '20 Years', 4.9, 'Daily']);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clinical_notes (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      title VARCHAR(255) NOT NULL,
+      content TEXT NOT NULL,
+      category VARCHAR(100),
+      timestamp VARCHAR(255),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
+
+  // Pre-populate Doctors if empty
+  const [doctorCountRows] = await pool.query('SELECT COUNT(*) as count FROM doctors');
+  const doctorCount = doctorCountRows[0]?.count || 0;
+  if (doctorCount === 0) {
+    await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. Sarah Chen', 'Cardiologist', '12 Years', 4.9, 'Mon, Wed, Fri']);
+    await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. Marcus Thorne', 'Neurologist', '15 Years', 4.8, 'Tue, Thu']);
+    await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. Elena Rodriguez', 'Endocrinologist', '8 Years', 4.7, 'Daily']);
+    await pool.execute('INSERT INTO doctors (name, specialty, experience, rating, availability) VALUES (?, ?, ?, ?, ?)', ['Dr. James Wilson', 'General Physician', '20 Years', 4.9, 'Daily']);
+  }
+} catch (error) {
+  console.log('Database table seeding notice (can be ignored on cold starts):', error.message);
 }
+
 
 async function startServer() {
   const app = express();
