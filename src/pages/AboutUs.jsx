@@ -173,7 +173,7 @@ export default function AboutUs() {
             name={<>Nimmagadda<br />Suryachandra</>}
             nameString="Nimmagadda Suryachandra"
             title="Lead Developer & Architect"
-            quote="Turned the core ideas and roadmap into a fully functional and complete working app model."
+            quote="Turned the core ideas from our discussions into a fully functional and complete healthcare application, changing the original idea into a working app."
             color="emerald"
             badge="Execution"
           />
