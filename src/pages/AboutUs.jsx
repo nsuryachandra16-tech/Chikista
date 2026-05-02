@@ -52,7 +52,7 @@ const VisionaryCard = ({ name, nameString, title, quote, color, index, image, ba
         onMouseLeave={handleMouseLeave}
         style={{ rotateX, rotateY }}
         className={cn(
-          "relative w-full max-w-[400px] sm:aspect-[4/5] min-h-[420px] rounded-[3rem] p-6 sm:p-10 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 shadow-2xl transition-all duration-300",
+          "relative w-full max-w-[400px] min-h-[460px] h-full rounded-[3rem] p-6 sm:p-10 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 shadow-2xl transition-all duration-300",
           "group-hover:shadow-[0_0_80px_rgba(20,184,166,0.1)] dark:group-hover:shadow-[0_0_80px_rgba(255,255,255,0.05)]",
           color === 'emerald' ? 'hover:border-emerald-500/50' : 'hover:border-sky-500/50'
         )}
@@ -160,7 +160,7 @@ export default function AboutUs() {
           </p>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-12 pt-12">
+        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-12 pt-12">
           <VisionaryCard
             index={0}
             name={<>Vissamsetti<br />Srujan</>}
