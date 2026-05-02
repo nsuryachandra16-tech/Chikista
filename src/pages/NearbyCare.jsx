@@ -175,7 +175,7 @@ export default function NearbyCare() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-12">
+    <div className="max-w-6xl mx-auto space-y-12 pb-12 px-4 md:px-0">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-2">
           <h1 className="text-4xl font-black tracking-tight uppercase">Nearby Care</h1>

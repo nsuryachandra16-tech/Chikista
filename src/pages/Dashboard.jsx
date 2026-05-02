@@ -238,9 +238,9 @@ export default function Dashboard() {
 
       {/* VitalStream Visualization */}
       <div className="max-w-7xl mx-auto w-full">
-        <Card className="p-10 border-none bg-slate-900 text-white overflow-hidden relative shadow-2xl">
-          <div className="relative z-10 grid lg:grid-cols-4 items-center gap-10">
-             <div className="lg:border-r border-slate-800 pr-10">
+        <Card className="p-6 md:p-10 border-none bg-slate-900 text-white overflow-hidden relative shadow-2xl">
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-center gap-10">
+             <div className="sm:border-r border-slate-800 sm:pr-10">
                 <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-3 mb-2">
                    <Activity className="text-medical-400" />
                    VitalStream™
@@ -286,10 +286,10 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Action Grid */}
-      <div className="grid sm:grid-cols-2 gap-10 max-w-7xl mx-auto w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 max-w-7xl mx-auto w-full">
          <div 
             onClick={() => window.location.href = '/medications'}
-            className="group relative bg-emerald-500 hover:bg-emerald-400 p-10 rounded-[3rem] flex flex-col justify-between cursor-pointer transition-all hover:scale-[1.02] shadow-2xl shadow-emerald-500/10 overflow-hidden min-h-[280px]"
+            className="group relative bg-emerald-500 hover:bg-emerald-400 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] flex flex-col justify-between cursor-pointer transition-all hover:scale-[1.02] shadow-2xl shadow-emerald-500/10 overflow-hidden min-h-[250px] md:min-h-[280px]"
          >
             <div className="w-16 h-16 rounded-3xl bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center transition-colors shadow-inner">
                <Plus size={32} className="text-white" />
@@ -310,7 +310,7 @@ export default function Dashboard() {
 
          <div 
             onClick={() => window.location.href = '/analytics'}
-            className="group relative bg-slate-900 hover:bg-slate-800 p-10 rounded-[3rem] flex flex-col justify-between cursor-pointer transition-all hover:scale-[1.02] shadow-2xl shadow-black/20 border border-slate-800 overflow-hidden min-h-[280px]"
+            className="group relative bg-slate-900 hover:bg-slate-800 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] flex flex-col justify-between cursor-pointer transition-all hover:scale-[1.02] shadow-2xl shadow-black/20 border border-slate-800 overflow-hidden min-h-[250px] md:min-h-[280px]"
          >
             <div className="w-16 h-16 rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-md flex items-center justify-center transition-colors shadow-inner">
                <TrendingUp size={32} className="text-white" />

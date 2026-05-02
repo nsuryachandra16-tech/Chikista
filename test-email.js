@@ -23,7 +23,7 @@ async function run() {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: 'testcc995@gmail.com',
+      to: process.env.EMAIL_TO || 'testcc995@gmail.com',
       subject: 'Your Chikitsa Verification Code',
       text: `Your account verification code is: ${otpCode}. Please use this code to activate your Chikitsa account.`,
       html: `

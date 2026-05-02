@@ -80,6 +80,8 @@ export default function HealthCheck() {
         - Must include tag: [FINAL_VERDICT]
         - A clear "Clinical Recommendation" naming the specialist.
         - Use exactly this format for the disease: "Suspected Condition: [Disease Name]"
+        - Medicine Suggestions: Name 1-2 generic medications or relief measures.
+        - Kind Suggestions: 1-2 empathy and lifestyle tips.
         - Likely Condition in simple terms.
         - Medical Disclaimer.
 
@@ -238,6 +240,11 @@ export default function HealthCheck() {
     
     const conditionRaw = (match1 && match1[1]) || (match2 && match2[1]) || (match3 && match3[1]) || 'Clinical Assessment';
     const condition = conditionRaw.replace(/\*/g, '').trim();
+
+    const medMatch = content.match(/Medicine Suggestions:\s*([^\n]+)/i);
+    const kindMatch = content.match(/Kind Suggestions:\s*([^\n]+)/i);
+    const medicines = medMatch ? medMatch[1].replace(/\*/g, '').trim() : "Standard home care and hydration.";
+    const kindSuggestions = kindMatch ? kindMatch[1].replace(/\*/g, '').trim() : "Rest, monitor symptoms, and seek immediate professional care if they worsen.";
     
     const riskLevel = content.toLowerCase().includes('emergency') || content.toLowerCase().includes('severe') ? 'High Risk' : 'Low Risk';
     const accuracy = 85 + Math.floor(Math.random() * 10); // Simulated accuracy
@@ -273,6 +280,19 @@ export default function HealthCheck() {
             </div>
             <p className="text-sm font-medium leading-relaxed text-slate-300">
               Synthesized data prioritized next step: consultation with a <span className="text-white font-black underline decoration-medical-500 decoration-2 underline-offset-4">{specialist}</span>.
+            </p>
+          </div>
+
+          <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+            <div className="flex items-center gap-2 text-emerald-400">
+              <Sparkles size={18} />
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] italic">Medicine Suggestions & General Care</p>
+            </div>
+            <p className="text-sm font-medium leading-relaxed text-slate-300">
+              <span className="text-emerald-400 font-bold">Medicines:</span> {medicines}
+            </p>
+            <p className="text-sm font-medium leading-relaxed text-slate-300">
+              <span className="text-emerald-400 font-bold">Suggestions:</span> {kindSuggestions}
             </p>
           </div>
 
@@ -314,7 +334,7 @@ export default function HealthCheck() {
   };
 
   return (
-    <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-8rem)] w-full max-w-[1440px] mx-auto flex flex-col md:flex-row gap-4 relative overflow-hidden p-2 md:p-0">
+    <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-8rem)] w-full max-w-[1440px] mx-auto flex flex-col md:flex-row gap-4 relative overflow-hidden px-3 md:p-0">
       {/* Context Sidebar - Now a Slide-out Drawer */}
       <AnimatePresence>
         {showContext && (
