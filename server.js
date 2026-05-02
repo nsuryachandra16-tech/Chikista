@@ -149,21 +149,21 @@ const PORT = 3000;
 const SECRET_KEY = process.env.JWT_SECRET || 'chikitsa-super-secret-key';
 
 // MySQL Configuration
-let dbHost = process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost';
+let dbHost = (process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost').trim();
 let dbPort = parseInt(process.env.MYSQL_PORT || process.env.DB_PORT || '3306', 10);
-let dbUser = process.env.MYSQL_USER || process.env.DB_USER || 'root';
-let dbPassword = process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || 'SURYA_1416';
-let dbName = process.env.MYSQL_DATABASE || process.env.DB_NAME || 'defaultdb';
+let dbUser = (process.env.MYSQL_USER || process.env.DB_USER || 'root').trim();
+let dbPassword = (process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || 'SURYA_1416').trim();
+let dbName = (process.env.MYSQL_DATABASE || process.env.DB_NAME || 'defaultdb').trim();
 
 const dbUri = process.env.MYSQL_URI || process.env.DB_URI || process.env.DATABASE_URL;
 if (dbUri) {
   try {
-    const parsed = new URL(dbUri);
-    dbHost = parsed.hostname;
+    const parsed = new URL(dbUri.trim());
+    dbHost = parsed.hostname.trim();
     dbPort = parseInt(parsed.port || '3306', 10);
-    dbUser = parsed.username;
-    dbPassword = decodeURIComponent(parsed.password);
-    dbName = parsed.pathname.replace(/^\//, '');
+    dbUser = parsed.username.trim();
+    dbPassword = decodeURIComponent(parsed.password).trim();
+    dbName = parsed.pathname.replace(/^\//, '').trim();
   } catch (e) {
     console.log('Error parsing database URI:', e.message);
   }
