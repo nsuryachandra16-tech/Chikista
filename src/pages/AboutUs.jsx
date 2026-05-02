@@ -162,18 +162,18 @@ export default function AboutUs() {
           <VisionaryCard 
             index={0}
             name="Nimmagadda Suryachandra"
-            title="Chief Systems Architect"
-            quote="Pioneered the end-to-end technical development, taking the project from early concept to a fully production-ready clinical ecosystem."
+            title="Lead Developer & Architect"
+            quote="Designed and built the entire application from the ground up, turning the initial ideas into a fully functioning health platform."
             color="emerald"
-            badge="Ideation to Implementation"
+            badge="Idea to Reality"
           />
           <VisionaryCard 
             index={1}
             name="Vissamsetti Srujan"
-            title="Strategic Operations Lead"
-            quote="Conceived the original vision and core concepts, laying down the foundational roadmap for advanced patient-first telemetry."
+            title="Strategic Planner"
+            quote="Came up with the original concept and core ideas, helping shape the platform's vision from the very beginning."
             color="sky"
-            badge="Conceptual Visionary"
+            badge="Original Concept"
           />
         </div>
       </section>
