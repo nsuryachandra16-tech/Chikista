@@ -12,6 +12,7 @@ import {
   BookOpen,
   Clock
 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import { cn } from '../lib/utils';
@@ -20,7 +21,10 @@ import Card from '../components/Card';
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function MedicineSearch() {
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+
+  const [query, setQuery] = useState(initialQ);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -32,16 +36,15 @@ export default function MedicineSearch() {
     time: '08:00'
   });
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim() || loading) return;
+  const fetchMedicine = async (searchQuery) => {
+    if (!searchQuery.trim() || loading) return;
 
     setLoading(true);
     setResult(null);
     setError(null);
 
     const prompt = `
-      Provide comprehensive clinical information about the medicine: "${query}".
+      Provide comprehensive clinical information about the medicine: "${searchQuery}".
       Return the data in a structured JSON format with the following fields:
       - name: Common name of the medicine
       - uses: How it's used
@@ -70,6 +73,20 @@ export default function MedicineSearch() {
       setLoading(false);
     }
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    setSearchParams({ q: query });
+    fetchMedicine(query);
+  };
+
+  React.useEffect(() => {
+    if (initialQ) {
+      setQuery(initialQ);
+      fetchMedicine(initialQ);
+    }
+  }, [initialQ]);
 
   const handleAddToSchedule = async (e) => {
     e.preventDefault();

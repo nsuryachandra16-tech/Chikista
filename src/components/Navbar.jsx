@@ -158,7 +158,7 @@ export default function Navbar({ onMenuClick }) {
           />
 
           <AnimatePresence>
-            {isSearchFocused && filteredPages.length > 0 && (
+            {isSearchFocused && searchQuery.trim().length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -173,12 +173,36 @@ export default function Navbar({ onMenuClick }) {
                       setSearchQuery('');
                       setIsSearchFocused(false);
                     }}
-                    className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors flex flex-col gap-0.5 border-b border-slate-50 dark:border-slate-800/40 last:border-0"
+                    className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors flex flex-col gap-0.5 border-b border-slate-50 dark:border-slate-800/40"
                   >
                     <span className="text-sm font-black text-slate-800 dark:text-slate-100">{p.title}</span>
                     <span className="text-xs font-medium text-slate-400">{p.desc}</span>
                   </button>
                 ))}
+
+                <button
+                  onClick={() => {
+                    navigate(`/medicine-search?q=${encodeURIComponent(searchQuery)}`);
+                    setSearchQuery('');
+                    setIsSearchFocused(false);
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors flex flex-col gap-0.5 border-b border-slate-50 dark:border-slate-800/40"
+                >
+                  <span className="text-sm font-black text-medical-600">Search for "{searchQuery}" in Medicine Search</span>
+                  <span className="text-xs font-medium text-slate-400">View safe dosage, uses & safety checks</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate(`/disease-info?q=${encodeURIComponent(searchQuery)}`);
+                    setSearchQuery('');
+                    setIsSearchFocused(false);
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors flex flex-col gap-0.5 last:border-0"
+                >
+                  <span className="text-sm font-black text-medical-600">Search for "{searchQuery}" in Disease Info</span>
+                  <span className="text-xs font-medium text-slate-400">View condition symptoms and prevention</span>
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
