@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Search, Menu, Moon, Sun, Search as SearchIcon, X, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,6 +9,35 @@ export default function Navbar({ onMenuClick }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const searchablePages = [
+    { title: 'Dashboard', url: '/dashboard', desc: 'Main clinical control panel' },
+    { title: 'AI Health Check', url: '/health-check', desc: 'Scan symptoms instantly' },
+    { title: 'Diagnostic Reports', url: '/reports', desc: 'View medical files & logs' },
+    { title: 'Analytics Hub', url: '/analytics', desc: 'Clinical trends & charts' },
+    { title: 'Nearby Care', url: '/nearby-care', desc: 'Find local clinics & hospitals' },
+    { title: 'Medicine Search', url: '/medicine-search', desc: 'Search medicines & dosages' },
+    { title: 'Disease Info', url: '/disease-info', desc: 'Browse health conditions' },
+    { title: 'Pro Scan', url: '/pro-scan', desc: 'Advanced diagnostics' },
+    { title: 'Medications', url: '/medications', desc: 'Manage your pill schedules' },
+    { title: 'Appointments', url: '/appointments', desc: 'Schedule doctor visits' },
+    { title: 'Clinical Journal', url: '/journal', desc: 'Log your daily symptoms' },
+    { title: 'About Us & Visionaries', url: '/about', desc: 'The team behind Chikitsa' },
+    { title: 'FAQ Help Center', url: '/faq', desc: 'Got questions? We have answers' },
+    { title: 'Subscription tier', url: '/subscription', desc: 'Upgrade your health plan' },
+    { title: 'Account Settings', url: '/settings', desc: 'Preferences and profiles' }
+  ];
+
+  const filteredPages = searchablePages.filter(p => 
+    searchQuery && (
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      p.desc.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -115,13 +145,43 @@ export default function Navbar({ onMenuClick }) {
           <Menu size={20} />
         </button>
         
-        <div className="hidden md:flex items-center gap-3 px-4 h-11 bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 w-72 focus-within:w-96 focus-within:bg-white dark:focus-within:bg-slate-800 transition-all group">
+        <div className="hidden md:flex items-center gap-3 px-4 h-11 bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 w-72 focus-within:w-96 focus-within:bg-white dark:focus-within:bg-slate-800 transition-all group relative">
           <SearchIcon size={18} className="text-slate-400 group-focus-within:text-medical-500" />
           <input 
             type="text" 
             placeholder="Search symptoms, meds..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
             className="bg-transparent border-none outline-none text-sm font-medium w-full text-slate-700 dark:text-slate-200 placeholder:text-slate-500"
           />
+
+          <AnimatePresence>
+            {isSearchFocused && filteredPages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute top-12 left-0 w-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden py-2"
+              >
+                {filteredPages.map((p) => (
+                  <button
+                    key={p.url}
+                    onClick={() => {
+                      navigate(p.url);
+                      setSearchQuery('');
+                      setIsSearchFocused(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors flex flex-col gap-0.5 border-b border-slate-50 dark:border-slate-800/40 last:border-0"
+                  >
+                    <span className="text-sm font-black text-slate-800 dark:text-slate-100">{p.title}</span>
+                    <span className="text-xs font-medium text-slate-400">{p.desc}</span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
