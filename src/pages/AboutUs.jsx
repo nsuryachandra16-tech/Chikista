@@ -104,7 +104,7 @@ const VisionaryCard = ({ name, nameString, title, quote, color, index, image, ba
               </p>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex justify-center w-full">
               <a 
                 href="https://discord.gg/rZXMn4UenC" 
                 target="_blank" 
