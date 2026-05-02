@@ -97,9 +97,9 @@ const VisionaryCard = ({ name, nameString, title, quote, color, index, image, ba
           </div>
 
           <div className="space-y-8">
-            <div className="relative">
-              <Quote className="absolute -top-4 -left-4 w-12 h-12 text-slate-100 dark:text-white/5" />
-              <p className="text-base font-bold text-slate-600 dark:text-slate-300 italic leading-relaxed relative z-10">
+            <div className="relative pt-2">
+              <Quote className="absolute top-0 -left-3 w-10 h-10 text-slate-100 dark:text-white/5 opacity-80" />
+              <p className="text-base font-bold text-slate-600 dark:text-slate-300 italic leading-relaxed relative z-10 pl-2">
                 "{quote}"
               </p>
             </div>
