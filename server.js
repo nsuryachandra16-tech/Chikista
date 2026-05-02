@@ -180,14 +180,19 @@ const connectionConfig = {
 
 const DB_NAME = dbName;
 
+// Log resolved DB config (mask password)
+console.log(`🛢️  DB config: host=${dbHost}, port=${dbPort}, user=${dbUser}, db=${dbName}`);
+
 // Initialize and auto-create MySQL database if it doesn't exist
 try {
   const initConnection = await mysql.createConnection({
     ...connectionConfig,
-    database: DB_NAME
+    database: DB_NAME,
+    connectTimeout: 10000
   });
   await initConnection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
   await initConnection.end();
+  console.log('✅ Database init connection successful');
 } catch (err) {
   console.log('Database initialization notice (can be ignored on managed databases like Aiven):', err.message);
 }
@@ -198,7 +203,18 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  connectTimeout: 15000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
 });
+
+// Test pool connection on startup
+try {
+  await pool.query('SELECT 1');
+  console.log('✅ Database pool connection verified');
+} catch (err) {
+  console.error('⚠️ Database pool test failed (server will still start):', err.message);
+}
 
 try {
   // Seed Table creation

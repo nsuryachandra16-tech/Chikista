@@ -25,7 +25,7 @@ export default function Layout() {
       )}>
         <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto no-scrollbar pt-6 pb-20 px-6 md:px-10 lg:px-16 max-w-[1920px] mx-auto w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar pt-4 md:pt-6 pb-20 px-4 md:px-10 lg:px-16 max-w-[1920px] mx-auto w-full">
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 20 }}

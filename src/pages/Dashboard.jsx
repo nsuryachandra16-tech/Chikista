@@ -153,7 +153,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-16 pb-12">
+    <div className="space-y-10 md:space-y-16 pb-12 px-4 md:px-0">
       {/* Disclaimer Modal */}
       <AnimatePresence>
         {showDisclaimer && (
@@ -162,12 +162,12 @@ export default function Dashboard() {
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] p-10 max-w-xl w-full shadow-2xl relative overflow-hidden text-center flex flex-col items-center gap-6"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 max-w-xl w-full shadow-2xl relative overflow-hidden text-center flex flex-col items-center gap-6"
             >
               <div className="w-20 h-20 bg-medical-50 dark:bg-medical-950/30 text-medical-500 rounded-3xl flex items-center justify-center mb-2">
                 <ShieldCheck size={40} />
               </div>
-              <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none text-slate-900 dark:text-white">
+              <h3 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter leading-none text-slate-900 dark:text-white">
                 Chikitsa <span className="text-medical-500">Notice</span>
               </h3>
               <p className="text-sm font-bold text-slate-500 max-w-sm">
@@ -185,19 +185,19 @@ export default function Dashboard() {
       </AnimatePresence>
 
       {/* Dynamic Header */}
-      <section className="flex flex-col md:flex-row gap-8 justify-between items-start max-w-7xl mx-auto">
+      <section className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-between items-start max-w-7xl mx-auto">
         <div className="space-y-3">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
             Health <span className="text-medical-500">Pulse</span>
           </h1>
-          <p className="text-slate-500 font-bold text-lg max-w-xl">
+          <p className="text-slate-500 font-bold text-base md:text-lg max-w-xl">
              Welcome back, <span className="text-slate-900 dark:text-white">{user?.name}</span>. Your clinical telemetry is stable and synchronizing.
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 w-full sm:w-auto">
           <button 
             onClick={() => setShowLogModal(true)}
-            className="px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-105 transition-all flex items-center gap-3"
+            className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[2rem] sm:rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-3"
           >
             <Plus size={18} />
             Quick Vitals
@@ -206,7 +206,7 @@ export default function Dashboard() {
       </section>
 
       {/* Metric Quick-View Banner */}
-      <div className="max-w-7xl mx-auto w-full grid md:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
         {stats.map((stat, i) => (
           <motion.div 
             key={stat.label}
@@ -334,7 +334,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Feature Grid */}
-      <div className="grid lg:grid-cols-[1fr_400px] gap-10 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 md:gap-10 max-w-7xl mx-auto">
         <div className="space-y-10">
           {/* Recent Journal Entries */}
           <Card 
