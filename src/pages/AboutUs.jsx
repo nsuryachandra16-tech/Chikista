@@ -14,7 +14,7 @@ import {
 import Card from '../components/Card';
 import { cn } from '../lib/utils';
 
-const VisionaryCard = ({ name, title, quote, color, index, image, badge }) => {
+const VisionaryCard = ({ name, nameString, title, quote, color, index, image, badge }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -70,7 +70,7 @@ const VisionaryCard = ({ name, title, quote, color, index, image, badge }) => {
               color === 'emerald' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : 'bg-gradient-to-br from-sky-400 to-sky-600'
             )}>
               {image ? (
-                <img src={image} alt={name} className="w-full h-full object-cover" />
+                <img src={image} alt={nameString || name} className="w-full h-full object-cover" />
               ) : (
                 <Rocket size={40} />
               )}
@@ -84,7 +84,7 @@ const VisionaryCard = ({ name, title, quote, color, index, image, badge }) => {
                   {badge}
                 </div>
               )}
-              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-tight">{name}</h3>
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none pb-1">{name}</h3>
               <p className={cn(
                 "text-[10px] font-black uppercase tracking-[0.3em] pt-1",
                 color === 'emerald' ? 'text-emerald-500' : 'text-sky-500'
@@ -161,19 +161,21 @@ export default function AboutUs() {
         <div className="flex flex-col lg:flex-row items-center justify-center gap-12 pt-12">
           <VisionaryCard 
             index={0}
-            name="Nimmagadda Suryachandra"
-            title="Lead Developer & Architect"
-            quote="Designed and built the entire application from the ground up, turning the initial ideas into a fully functioning health platform."
-            color="emerald"
-            badge="Idea to Reality"
+            name={<>Vissamsetti<br />Srujan</>}
+            nameString="Vissamsetti Srujan"
+            title="Strategic Planner"
+            quote="Came up with the initial idea for the platform, leading the roadmap and high-level vision from the very beginning."
+            color="sky"
+            badge="Ideation"
           />
           <VisionaryCard 
             index={1}
-            name="Vissamsetti Srujan"
-            title="Strategic Planner"
-            quote="Came up with the original concept and core ideas, helping shape the platform's vision from the very beginning."
-            color="sky"
-            badge="Original Concept"
+            name={<>Nimmagadda<br />Suryachandra</>}
+            nameString="Nimmagadda Suryachandra"
+            title="Lead Developer & Architect"
+            quote="Turned the core ideas from our discussions into a fully functional and complete healthcare application."
+            color="emerald"
+            badge="Execution"
           />
         </div>
       </section>
