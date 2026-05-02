@@ -132,6 +132,9 @@ export default function HealthCheck() {
       }
     } catch (error) {
       console.error('Submit error:', error);
+      if (error?.status === 429 || error?.message?.includes('429') || error?.message?.toLowerCase().includes('quota') || error?.message?.toLowerCase().includes('exhausted')) {
+         console.warn('⚠️ API Quota limit exceeded! Please check your Gemini API key limits.');
+      }
       const errorMessage = error instanceof Error ? error.message : "I apologize, I'm having trouble processing that analysis right now. Please try again.";
       setMessages(prev => [...prev, { 
         role: 'assistant', 

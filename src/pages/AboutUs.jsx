@@ -52,7 +52,7 @@ const VisionaryCard = ({ name, title, quote, color, index, image }) => {
         onMouseLeave={handleMouseLeave}
         style={{ rotateX, rotateY }}
         className={cn(
-          "relative w-full max-w-[400px] aspect-[4/5] rounded-[3rem] p-10 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 shadow-2xl transition-all duration-300",
+          "relative w-full max-w-[400px] sm:aspect-[4/5] min-h-[420px] rounded-[3rem] p-6 sm:p-10 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 shadow-2xl transition-all duration-300",
           "group-hover:shadow-[0_0_80px_rgba(20,184,166,0.1)] dark:group-hover:shadow-[0_0_80px_rgba(255,255,255,0.05)]",
           color === 'emerald' ? 'hover:border-emerald-500/50' : 'hover:border-sky-500/50'
         )}

@@ -230,7 +230,7 @@ export default function Subscription() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-2xl mx-auto"
             >
-               <div className="relative overflow-hidden bg-slate-900 rounded-[4rem] p-16 text-center space-y-10 border border-white/5 shadow-2xl">
+                <div className="relative overflow-hidden bg-slate-900 rounded-[2rem] sm:rounded-[4rem] p-6 sm:p-16 text-center space-y-10 border border-white/5 shadow-2xl">
                   {/* Decorative */}
                   <div className="absolute top-0 right-0 p-12 opacity-5 text-white">
                      <Crown size={200} />
@@ -240,9 +240,9 @@ export default function Subscription() {
                      <div className="inline-flex items-center gap-3 px-6 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-500 font-black text-[10px] uppercase tracking-widest">
                         <Sparkles size={14} fill="currentColor" /> Lifetime Pro Benefactor
                      </div>
-                     <h2 className="text-5xl font-black text-white uppercase tracking-tighter">You Are Already <br/><span className="text-medical-400">A Pro Person!</span></h2>
+                     <h2 className="text-2xl sm:text-5xl font-black text-white uppercase tracking-tighter">You Are Already <br/><span className="text-medical-400">A Pro Person!</span></h2>
                      
-                     <div className="grid grid-cols-2 gap-6 max-w-sm mx-auto">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-sm mx-auto">
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/5">
                            <Calendar className="mx-auto mb-2 text-medical-400" size={24} />
                            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Expires On</p>

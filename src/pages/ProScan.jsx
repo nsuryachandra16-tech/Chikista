@@ -69,7 +69,7 @@ export default function ProScan() {
               Pro License Active
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
             Clinical <span className="text-medical-500">Pro</span> Scan
           </h1>
           <p className="text-slate-500 font-medium text-lg">Advanced deterministic ML analysis using historical clinical CSV datasets.</p>

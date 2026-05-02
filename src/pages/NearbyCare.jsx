@@ -178,12 +178,12 @@ export default function NearbyCare() {
     <div className="max-w-6xl mx-auto space-y-12 pb-12 px-4 md:px-0">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-2">
-          <h1 className="text-4xl font-black tracking-tight uppercase">Nearby Care</h1>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight uppercase">Nearby Care</h1>
           <p className="text-slate-500 font-medium tracking-tight">Geo-spatial discovery of critical medical infrastructure.</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto whitespace-nowrap no-scrollbar max-w-full flex-shrink-0">
              {[
                { id: 'hospital', label: 'Hospitals', icon: Hospital },
                { id: 'clinic', label: 'Clinics', icon: Stethoscope },
@@ -193,7 +193,7 @@ export default function NearbyCare() {
                  key={f.id}
                  onClick={() => setActiveFilter(f.id)}
                  className={cn(
-                   "px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all gap-2 flex items-center",
+                   "px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all gap-2 flex items-center flex-shrink-0",
                    activeFilter === f.id ? "bg-white dark:bg-slate-800 text-medical-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
                  )}
                >
