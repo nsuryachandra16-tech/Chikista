@@ -422,11 +422,6 @@ async function startServer() {
       // Store temporarily in memory - Do NOT insert into the database yet
       tempUsers.set(email, { name, email, password: hashedPassword, code: otpCode });
 
-      // DEBUG: Log the OTP to the console so it can be seen even if email fails!
-      console.log(`\n===========================================`);
-      console.log(`🔑 OTP CODE FOR ${email}: ${otpCode}`);
-      console.log(`===========================================\n`);
-
       // Send verification email in the background to speed up API response
       sendVerificationEmail(email, name, otpCode).catch(mailErr => {
         console.error('❌ Background email sending failed:', mailErr.message);
