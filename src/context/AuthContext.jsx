@@ -123,16 +123,12 @@ export function AuthProvider({ children }) {
 
     const response = await fetch(url, { ...options, headers });
 
-    if (response.status === 401) {
-      const text = await response.text();
-      let errorData = { error: text };
-      try { errorData = JSON.parse(text); } catch (e) {}
-
-      if (errorData.error === 'User no longer exists' && !isRedirecting.current) {
+    if (response.status === 401 || response.status === 403) {
+      if (!isRedirecting.current) {
         isRedirecting.current = true;
         logout();
         window.location.href = '/login';
-        throw new Error('User no longer exists');
+        throw new Error('Session invalid or expired');
       }
     }
 
