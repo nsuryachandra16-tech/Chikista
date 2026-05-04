@@ -190,20 +190,23 @@ export default function Reports() {
         animate={{ opacity: 1, y: 0 }}
         className={cn(
           "relative overflow-hidden p-8 rounded-[3rem] border border-slate-100 dark:border-white/5 shadow-2xl",
-          isPro ? "bg-slate-900 text-white" : "bg-medical-50 dark:bg-medical-900/10"
+          isPro ? "bg-slate-900 text-white" : "bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10"
         )}
       >
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
            <div className="flex items-center gap-6 text-center md:text-left flex-col md:flex-row">
               <div className={cn(
                 "w-20 h-20 rounded-[2rem] flex items-center justify-center shadow-xl",
-                isPro ? "bg-medical-500 text-white" : "bg-white dark:bg-slate-900 text-medical-500"
+                isPro ? "bg-medical-500 text-white" : "bg-medical-50 dark:bg-medical-900/20 text-medical-600 dark:text-medical-400"
               )}>
                  <Printer size={32} />
               </div>
               <div className="space-y-1">
-                 <h2 className="text-2xl font-black uppercase tracking-tight">Clinical Health Report Generator</h2>
-                 <p className={cn("text-sm font-bold", isPro ? "text-slate-400" : "text-slate-500")}>
+                 <h2 className={cn(
+                   "text-2xl font-black uppercase tracking-tight",
+                   isPro ? "text-white" : "text-slate-900 dark:text-white"
+                 )}>Clinical Health Report Generator</h2>
+                 <p className={cn("text-sm font-bold", isPro ? "text-slate-400" : "text-slate-500 dark:text-slate-400")}>
                     {isPro 
                        ? "You are authorized to generate unified medical summaries." 
                        : "Upgrade to Pro to generate a beautiful, single-page health summary."}
