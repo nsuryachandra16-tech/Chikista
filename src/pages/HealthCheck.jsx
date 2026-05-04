@@ -23,6 +23,7 @@ import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const aiBackup = process.env.GEMINI_API_KEY1 ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY1 }) : null;
 
 export default function HealthCheck() {
   const { user, authFetch } = useAuth();
@@ -131,6 +132,37 @@ export default function HealthCheck() {
         generateReport(text, true, currentInput); 
       }
     } catch (error) {
+      console.error('Primary API error:', error);
+      if (aiBackup) {
+        console.warn('⚠️ Primary API failed or quota exceeded. Trying backup key...');
+        try {
+          const response = await aiBackup.models.generateContent({
+            model: "gemini-3-flash-preview",
+            contents: prompt
+          });
+          const text = response.text;
+          const isActualAnalysis = text.includes('[FINAL_VERDICT]');
+          const cleanText = text.replace(/\[FINAL_VERDICT\]/g, '').replace(/\*\*/g, '').replace(/###/g, '').trim();
+
+          const newMessage = { 
+            role: 'assistant', 
+            content: cleanText, 
+            timestamp: new Date(),
+            isAnalysis: isActualAnalysis,
+            rawResponse: text
+          };
+
+          setMessages(prev => [...prev, newMessage]);
+          setIsSynced(false);
+          if (isActualAnalysis) {
+            generateReport(text, true, currentInput); 
+          }
+          return;
+        } catch (backupErr) {
+          console.error('Backup Gemini API key failed too.', backupErr);
+        }
+      }
+
       console.error('Submit error:', error);
       if (error?.status === 429 || error?.message?.includes('429') || error?.message?.toLowerCase().includes('quota') || error?.message?.toLowerCase().includes('exhausted')) {
          console.warn('⚠️ API Quota limit exceeded! Please check your Gemini API key limits.');

@@ -19,6 +19,7 @@ import { cn } from '../lib/utils';
 import Card from '../components/Card';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const aiBackup = process.env.GEMINI_API_KEY1 ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY1 }) : null;
 
 export default function MedicineSearch() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -57,7 +58,7 @@ export default function MedicineSearch() {
 
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-1.5-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -67,6 +68,23 @@ export default function MedicineSearch() {
       const data = JSON.parse(response.text);
       setResult(data);
     } catch (err) {
+      console.warn("Primary API key failed in Medicine Search. Checking backup key...", err);
+      if (aiBackup) {
+        try {
+          const backupResponse = await aiBackup.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+            },
+          });
+          setResult(JSON.parse(backupResponse.text));
+          return;
+        } catch (backupErr) {
+          console.error("Backup Gemini API key failed too in Medicine Search.", backupErr);
+        }
+      }
+
       console.error(err);
       setError("Unable to find information for this medication. Please verify the name.");
     } finally {

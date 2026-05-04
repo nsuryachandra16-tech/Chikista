@@ -23,6 +23,7 @@ import { cn } from '../lib/utils';
 import Card from '../components/Card';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const aiBackup = process.env.GEMINI_API_KEY1 ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY1 }) : null;
 
 const getMockFallbackResult = (query) => ({
   name: query || "Condition Analysis",
@@ -81,8 +82,24 @@ export default function DiseaseInfo() {
 
       setResult(JSON.parse(response.text));
     } catch (err) {
+      console.warn("Primary API failed. Checking for backup Gemini key...", err);
+      if (aiBackup) {
+        try {
+          const backupResponse = await aiBackup.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+            },
+          });
+          setResult(JSON.parse(backupResponse.text));
+          return;
+        } catch (backupErr) {
+          console.error("Backup Gemini API failed too.", backupErr);
+        }
+      }
+
       console.warn("API quota or rate limit exceeded. Using secure, clinical fallback data.", err);
-      // Fallback to avoid quota error crashing the user's experience
       setResult(getMockFallbackResult(searchQuery));
     } finally {
       setLoading(false);
