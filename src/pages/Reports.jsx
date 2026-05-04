@@ -151,6 +151,49 @@ export default function Reports() {
         currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
       }
 
+      // Advanced Clinical Triage & Medical Insights Assessment
+      const cautionCount = reports.filter(r => r.urgency === 'Caution').length;
+      let riskLevel = "LOW RISK - ROUTINE CARE";
+      let summaryInsights = "Based on our comprehensive clinical analysis, your recorded symptoms primarily indicate basic seasonal illnesses (such as a common seasonal flu or minor allergy). Continue proper symptom management, maintain adequate hydration, and monitor any subtle changes. No urgent medical intervention is required at this time.";
+      let triageColor = [16, 185, 129]; // Emerald-500
+
+      if (cautionCount >= 2) {
+        riskLevel = "ELEVATED RISK - IMMEDIATE CONSULTATION REQUIRED";
+        summaryInsights = `Alert: Multiple serious cautionary clinical markers (${cautionCount} detected) have been identified in your history. We strongly advise you to avoid any delay and schedule an immediate appointment with a specialist for complete diagnostic verification.`;
+        triageColor = [239, 68, 68]; // Red-500
+      } else if (cautionCount === 1) {
+        riskLevel = "MODERATE RISK - MONITOR CAREFULLY";
+        summaryInsights = "One cautionary clinical symptom was identified in your medical history. Please observe your overall wellness carefully over the next 48 hours. If symptoms persist or escalate, a consultation with a General Physician is recommended.";
+        triageColor = [245, 158, 11]; // Amber-500
+      }
+
+      // Multi-page overflow check
+      if (currentY + 50 > 280) {
+        doc.addPage();
+        currentY = 20;
+      }
+
+      // Visual container for the premium Triage section
+      doc.setFillColor(248, 250, 252); // Slate-50
+      doc.setDrawColor(226, 232, 240); // Slate-200
+      doc.roundedRect(15, currentY, 180, 42, 4, 4, 'FD');
+
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42); // Slate-900
+      doc.setFont('helvetica', 'bold');
+      doc.text('ADVANCED CLINICAL TRIAGE ASSESSMENT', 22, currentY + 9);
+
+      doc.setFontSize(8);
+      doc.setTextColor(...triageColor);
+      doc.text(`TRIAGE RISK LEVEL: ${riskLevel}`, 22, currentY + 16);
+
+      // Paragraph wrapping for detailed matter
+      doc.setFontSize(8.5);
+      doc.setTextColor(71, 85, 105); // Slate-600
+      doc.setFont('helvetica', 'normal');
+      const textLines = doc.splitTextToSize(summaryInsights, 166);
+      doc.text(textLines, 22, currentY + 23);
+
       // Footer
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
