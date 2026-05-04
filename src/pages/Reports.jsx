@@ -21,7 +21,7 @@ import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export default function Reports() {
   const { user, authFetch } = useAuth();
@@ -74,92 +74,97 @@ export default function Reports() {
       return;
     }
     
-    const doc = new jsPDF();
-    const primaryColor = [14, 165, 233]; // Blue-500
-    
-    // Header
-    doc.setFillColor(15, 23, 42); // slate-900
-    doc.rect(0, 0, 210, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('CLINICAL HEALTH SUMMARY', 15, 25);
-    
-    doc.setFontSize(10);
-    doc.text(`CHIKITSA PRO VERIFIED • ${new Date().toLocaleDateString()}`, 15, 33);
-    
-    // User Info
-    doc.setTextColor(15, 23, 42);
-    doc.setFontSize(12);
-    doc.text('PATIENT PROFILE', 15, 55);
-    doc.setFontSize(10);
-    doc.text(`Name: ${user?.name || 'Anonymous User'}`, 15, 62);
-    doc.text(`Email: ${user?.email || 'N/A'}`, 15, 67);
-    doc.text(`ID: ${user?.id || 'N/A'}`, 15, 72);
-
-    // Latest Vitals
-    let currentY = 85;
-    if (vitals.length > 0) {
-      doc.setFontSize(12);
-      doc.text('LATEST BIOMETRICS', 15, currentY);
-      const latestVitals = vitals.slice(0, 5).map(v => [
-        new Date(v.timestamp).toLocaleDateString(),
-        v.type.toUpperCase(),
-        `${v.value} ${v.unit}`
-      ]);
+    try {
+      const doc = new jsPDF();
+      const primaryColor = [14, 165, 233]; // Blue-500
       
-      doc.autoTable({
-        startY: currentY + 5,
-        head: [['Date', 'Metric', 'Value']],
-        body: latestVitals,
-        theme: 'striped',
-        headStyles: { fillColor: primaryColor }
-      });
-      currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
-    }
-
-    // Active Medications
-    const activeMeds = medications.filter(m => m.active);
-    if (activeMeds.length > 0) {
-      doc.setFontSize(12);
-      doc.text('ACTIVE MEDICATION REGIMEN', 15, currentY);
+      // Header
+      doc.setFillColor(15, 23, 42); // slate-900
+      doc.rect(0, 0, 210, 40, 'F');
       
-      doc.autoTable({
-        startY: currentY + 5,
-        head: [['Medication', 'Dosage', 'Frequency']],
-        body: activeMeds.map(m => [m.name, m.dosage, m.frequency]),
-        theme: 'grid',
-        headStyles: { fillColor: primaryColor }
-      });
-      currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
-    }
-
-    // Clinical Reports
-    if (reports.length > 0) {
-      doc.setFontSize(12);
-      doc.text('HISTORICAL CLINICAL REPORTS', 15, currentY);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CLINICAL HEALTH SUMMARY', 15, 25);
       
-      doc.autoTable({
-        startY: currentY + 5,
-        head: [['Date', 'Report Type', 'Specialist', 'Status']],
-        body: reports.map(r => [new Date(r.timestamp).toLocaleDateString(), r.title, r.specialist, r.status]),
-        theme: 'striped',
-        headStyles: { fillColor: primaryColor }
-      });
-      currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
-    }
+      doc.setFontSize(10);
+      doc.text(`CHIKITSA PRO VERIFIED • ${new Date().toLocaleDateString()}`, 15, 33);
+      
+      // User Info
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(12);
+      doc.text('PATIENT PROFILE', 15, 55);
+      doc.setFontSize(10);
+      doc.text(`Name: ${user?.name || 'Anonymous User'}`, 15, 62);
+      doc.text(`Email: ${user?.email || 'N/A'}`, 15, 67);
+      doc.text(`ID: ${user?.id || 'N/A'}`, 15, 72);
 
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`This document is for clinical summary purposes only. Produced via Chikitsa Cloud. Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
-    }
+      // Latest Vitals
+      let currentY = 85;
+      if (vitals.length > 0) {
+        doc.setFontSize(12);
+        doc.text('LATEST BIOMETRICS', 15, currentY);
+        const latestVitals = vitals.slice(0, 5).map(v => [
+          new Date(v.timestamp).toLocaleDateString(),
+          v.type.toUpperCase(),
+          `${v.value} ${v.unit || ''}`
+        ]);
+        
+        autoTable(doc, {
+          startY: currentY + 5,
+          head: [['Date', 'Metric', 'Value']],
+          body: latestVitals,
+          theme: 'striped',
+          headStyles: { fillColor: primaryColor }
+        });
+        currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
+      }
 
-    doc.save(`Clinical_Summary_${user?.name || 'User'}_${new Date().toISOString().split('T')[0]}.pdf`);
+      // Active Medications
+      const activeMeds = medications.filter(m => m.active);
+      if (activeMeds.length > 0) {
+        doc.setFontSize(12);
+        doc.text('ACTIVE MEDICATION REGIMEN', 15, currentY);
+        
+        autoTable(doc, {
+          startY: currentY + 5,
+          head: [['Medication', 'Dosage', 'Frequency']],
+          body: activeMeds.map(m => [m.name, m.dosage, m.frequency]),
+          theme: 'grid',
+          headStyles: { fillColor: primaryColor }
+        });
+        currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
+      }
+
+      // Clinical Reports
+      if (reports.length > 0) {
+        doc.setFontSize(12);
+        doc.text('HISTORICAL CLINICAL REPORTS', 15, currentY);
+        
+        autoTable(doc, {
+          startY: currentY + 5,
+          head: [['Date', 'Report Type', 'Specialist', 'Status']],
+          body: reports.map(r => [new Date(r.timestamp).toLocaleDateString(), r.title || 'Untitled', r.specialist || 'N/A', r.status || 'Ready']),
+          theme: 'striped',
+          headStyles: { fillColor: primaryColor }
+        });
+        currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
+      }
+
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(150);
+          doc.text(`This document is for clinical summary purposes only. Produced via Chikitsa Cloud. Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+      }
+
+      doc.save(`Clinical_Summary_${user?.name || 'User'}_${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (pdfError) {
+      console.error('PDF generation failed:', pdfError);
+      alert('Report generation encountered an error. Please try again.');
+    }
   };
 
   const deleteReport = async (id) => {
