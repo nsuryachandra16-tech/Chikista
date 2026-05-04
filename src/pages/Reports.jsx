@@ -99,9 +99,10 @@ export default function Reports() {
     doc.text(`ID: ${user?.id || 'N/A'}`, 15, 72);
 
     // Latest Vitals
+    let currentY = 85;
     if (vitals.length > 0) {
       doc.setFontSize(12);
-      doc.text('LATEST BIOMETRICS', 15, 85);
+      doc.text('LATEST BIOMETRICS', 15, currentY);
       const latestVitals = vitals.slice(0, 5).map(v => [
         new Date(v.timestamp).toLocaleDateString(),
         v.type.toUpperCase(),
@@ -109,43 +110,44 @@ export default function Reports() {
       ]);
       
       doc.autoTable({
-        startY: 90,
+        startY: currentY + 5,
         head: [['Date', 'Metric', 'Value']],
         body: latestVitals,
         theme: 'striped',
         headStyles: { fillColor: primaryColor }
       });
+      currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
     }
 
     // Active Medications
     const activeMeds = medications.filter(m => m.active);
     if (activeMeds.length > 0) {
-      const startY = doc.lastAutoTable.finalY + 15 || 90;
       doc.setFontSize(12);
-      doc.text('ACTIVE MEDICATION REGIMEN', 15, startY);
+      doc.text('ACTIVE MEDICATION REGIMEN', 15, currentY);
       
       doc.autoTable({
-        startY: startY + 5,
+        startY: currentY + 5,
         head: [['Medication', 'Dosage', 'Frequency']],
         body: activeMeds.map(m => [m.name, m.dosage, m.frequency]),
         theme: 'grid',
         headStyles: { fillColor: primaryColor }
       });
+      currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
     }
 
     // Clinical Reports
     if (reports.length > 0) {
-      const startY = doc.lastAutoTable.finalY + 15 || 90;
       doc.setFontSize(12);
-      doc.text('HISTORICAL CLINICAL REPORTS', 15, startY);
+      doc.text('HISTORICAL CLINICAL REPORTS', 15, currentY);
       
       doc.autoTable({
-        startY: startY + 5,
+        startY: currentY + 5,
         head: [['Date', 'Report Type', 'Specialist', 'Status']],
         body: reports.map(r => [new Date(r.timestamp).toLocaleDateString(), r.title, r.specialist, r.status]),
         theme: 'striped',
         headStyles: { fillColor: primaryColor }
       });
+      currentY = doc.lastAutoTable?.finalY + 15 || currentY + 45;
     }
 
     // Footer
