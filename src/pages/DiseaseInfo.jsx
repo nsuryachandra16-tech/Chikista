@@ -74,24 +74,27 @@ export default function DiseaseInfo() {
     `;
 
     try {
-      const model = ai.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        generationConfig: { responseMimeType: "application/json" }
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        },
       });
-      const response = await model.generateContent(prompt);
-      const resultText = response.response.text();
-      setResult(JSON.parse(resultText));
+
+      setResult(JSON.parse(response.text));
     } catch (err) {
       console.warn("Primary API failed. Checking for backup Gemini key...", err);
       if (aiBackup) {
         try {
-          const backupModel = aiBackup.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
+          const backupResponse = await aiBackup.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+            },
           });
-          const backupResponse = await backupModel.generateContent(prompt);
-          const backupResultText = backupResponse.response.text();
-          setResult(JSON.parse(backupResultText));
+          setResult(JSON.parse(backupResponse.text));
           return;
         } catch (backupErr) {
           console.error("Backup Gemini API failed too.", backupErr);

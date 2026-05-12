@@ -59,25 +59,28 @@ export default function MedicineSearch() {
     `;
 
     try {
-      const model = ai.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        generationConfig: { responseMimeType: "application/json" }
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        },
       });
-      const response = await model.generateContent(prompt);
-      const resultText = response.response.text();
-      const data = JSON.parse(resultText);
+
+      const data = JSON.parse(response.text);
       setResult(data);
     } catch (err) {
       console.warn("Primary API key failed in Medicine Search. Checking backup key...", err);
       if (aiBackup) {
         try {
-          const backupModel = aiBackup.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
+          const backupResponse = await aiBackup.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+            },
           });
-          const backupResponse = await backupModel.generateContent(prompt);
-          const backupResultText = backupResponse.response.text();
-          setResult(JSON.parse(backupResultText));
+          setResult(JSON.parse(backupResponse.text));
           return;
         } catch (backupErr) {
           console.error("Backup Gemini API key failed too in Medicine Search.", backupErr);

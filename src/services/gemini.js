@@ -49,14 +49,16 @@ export async function analyzeSymptoms(symptoms, history = []) {
   try {
     if (!ai) throw new Error("Gemini API is not initialized. Please check your API key.");
     
-    const model = ai.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: { responseMimeType: "application/json" }
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+      },
     });
 
-    const response = await model.generateContent(prompt);
-    return JSON.parse(response.response.text());
+    return JSON.parse(response.text);
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
     throw error;
