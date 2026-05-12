@@ -68,7 +68,7 @@ export default function DiseaseInfo() {
       - urgency: Normal | Prompt | Emergency
       - types: List of different types/variants of this condition/infection/allergy
       - homeRemedies: Common and safe home remedies for this condition
-      - recommendedTablet: Provide a common tablet example, its exact usage, and age-specific dosage instructions.
+      - recommendedTablet: Provide a common tablet example, its exact usage, and age-specific dosage instructions. THIS MUST BE A STRING, NOT AN OBJECT.
     `;
 
     try {
@@ -169,8 +169,8 @@ export default function DiseaseInfo() {
         {result && (
           <div className="space-y-10">
             <Card 
-              title={result.name} 
-              subtitle={result.category} 
+              title={typeof result.name === 'string' ? result.name : (result.name.name || JSON.stringify(result.name))} 
+              subtitle={typeof result.category === 'string' ? result.category : (result.category.name || JSON.stringify(result.category))} 
               icon={Microscope}
               className="overflow-hidden"
               headerAction={
@@ -179,7 +179,7 @@ export default function DiseaseInfo() {
                   result.urgency === 'Emergency' ? "bg-red-600 text-white" :
                   result.urgency === 'Prompt' ? "bg-amber-500 text-white" : "bg-emerald-600 text-white"
                 )}>
-                  {result.urgency} Attention Priority
+                  {typeof result.urgency === 'string' ? result.urgency : JSON.stringify(result.urgency)} Attention Priority
                 </div>
               }
             >
@@ -207,7 +207,7 @@ export default function DiseaseInfo() {
                          <Stethoscope size={16} className="text-medical-500" /> Etiology & Root Causes
                       </h4>
                       <p className="text-lg font-bold text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-                         {result.causes}
+                         {typeof result.causes === 'string' ? result.causes : JSON.stringify(result.causes)}
                       </p>
                    </section>
 
@@ -237,7 +237,7 @@ export default function DiseaseInfo() {
                             <ShieldCheck size={18} /> Preventive Protocols
                          </h4>
                          <p className="text-emerald-900 dark:text-emerald-100 font-black text-xl leading-relaxed tracking-tight">
-                            {result.prevention}
+                            {typeof result.prevention === 'string' ? result.prevention : JSON.stringify(result.prevention)}
                          </p>
                       </div>
                       <ShieldCheck size={120} className="absolute -bottom-10 -right-10 text-emerald-100 dark:text-emerald-800/20 opacity-20 group-hover:scale-110 transition-transform duration-500" />
@@ -249,7 +249,7 @@ export default function DiseaseInfo() {
                             <Zap size={16} /> Home Remedies & Comfort
                          </h4>
                          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">
-                            {result.homeRemedies}
+                            {typeof result.homeRemedies === 'string' ? result.homeRemedies : JSON.stringify(result.homeRemedies)}
                          </p>
                       </section>
                    )}
@@ -260,7 +260,7 @@ export default function DiseaseInfo() {
                             <BookOpen size={16} /> Tablet & Age-Specific Dosage
                          </h4>
                          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">
-                            {result.recommendedTablet}
+                            {typeof result.recommendedTablet === 'string' ? result.recommendedTablet : (result.recommendedTablet.name || result.recommendedTablet.tablet || JSON.stringify(result.recommendedTablet))}
                          </p>
                       </section>
                    )}
@@ -270,7 +270,7 @@ export default function DiseaseInfo() {
                          <Zap size={16} className="text-amber-500" /> Traditional Management
                       </h4>
                       <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                         {result.treatment}
+                         {typeof result.treatment === 'string' ? result.treatment : JSON.stringify(result.treatment)}
                       </p>
                       
                       <Link 

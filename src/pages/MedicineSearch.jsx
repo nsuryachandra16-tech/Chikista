@@ -258,8 +258,8 @@ export default function MedicineSearch() {
           >
             <div className="space-y-8">
                <Card 
-                  title={result.name} 
-                  subtitle={result.category} 
+                  title={typeof result.name === 'string' ? result.name : (result.name.name || JSON.stringify(result.name))} 
+                  subtitle={typeof result.category === 'string' ? result.category : (result.category.name || JSON.stringify(result.category))} 
                   icon={FlaskConical}
                   headerAction={
                     <button 
@@ -277,7 +277,7 @@ export default function MedicineSearch() {
                            <BookOpen size={16} className="text-medical-500" /> Usage & Indications
                         </h4>
                         <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-semibold text-lg">
-                           {result.uses}
+                           {typeof result.uses === 'string' ? result.uses : JSON.stringify(result.uses)}
                         </p>
                      </section>
 
@@ -286,14 +286,14 @@ export default function MedicineSearch() {
                            <Clock size={16} className="text-medical-500" /> Standard Protocol
                         </h4>
                         <div className="p-8 bg-medical-50 dark:bg-medical-900/20 text-medical-700 dark:text-medical-300 rounded-[2.5rem] border border-medical-100 dark:border-medical-800/30 text-xl font-black tracking-tight leading-relaxed">
-                           {result.safeDosage}
+                           {typeof result.safeDosage === 'string' ? result.safeDosage : JSON.stringify(result.safeDosage)}
                         </div>
                      </section>
 
                      <section className="p-8 bg-slate-50 dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50">
                         <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 italic">Side Effects Profile</h4>
                         <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed">
-                           {result.sideEffects}
+                           {typeof result.sideEffects === 'string' ? result.sideEffects : JSON.stringify(result.sideEffects)}
                         </p>
                      </section>
                   </div>
@@ -321,7 +321,7 @@ export default function MedicineSearch() {
                               <AlertTriangle size={20} className="animate-pulse" />
                               <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Black Box Warning</h4>
                            </div>
-                           <p className="text-sm font-black leading-relaxed">{result.warning}</p>
+                           <p className="text-sm font-black leading-relaxed">{typeof result.warning === 'string' ? result.warning : JSON.stringify(result.warning)}</p>
                         </div>
                      )}
 
