@@ -22,8 +22,10 @@ import { GoogleGenAI } from "@google/genai";
 import { cn } from '../lib/utils';
 import Card from '../components/Card';
 
-const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI(process.env.GEMINI_API_KEY) : null;
-const aiBackup = process.env.GEMINI_API_KEY1 ? new GoogleGenAI(process.env.GEMINI_API_KEY1) : null;
+const apiKey1 = process.env.GEMINI_API_KEY;
+const apiKey2 = process.env.GEMINI_API_KEY1;
+const ai = apiKey1 ? new GoogleGenAI({ apiKey: apiKey1 }) : null;
+const aiBackup = apiKey2 ? new GoogleGenAI({ apiKey: apiKey2 }) : null;
 
 const getMockFallbackResult = (query) => ({
   name: query || "Condition Analysis",

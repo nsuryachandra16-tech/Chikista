@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const apiKey = process.env.GEMINI_API_KEY;
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 const SYSTEM_INSTRUCTION = `
 You are Chikitsa AI, a Clinical Intelligence engine. Your goal is to help users understand their symptoms through structured investigation.
@@ -46,16 +47,16 @@ export async function analyzeSymptoms(symptoms, history = []) {
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
-      },
+    if (!ai) throw new Error("Gemini API is not initialized. Please check your API key.");
+    
+    const model = ai.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: SYSTEM_INSTRUCTION,
+      generationConfig: { responseMimeType: "application/json" }
     });
 
-    return JSON.parse(response.text);
+    const response = await model.generateContent(prompt);
+    return JSON.parse(response.response.text());
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
     throw error;
