@@ -60,7 +60,7 @@ export default function MedicineSearch() {
 
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-1.5-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -74,7 +74,7 @@ export default function MedicineSearch() {
       if (aiBackup) {
         try {
           const backupResponse = await aiBackup.models.generateContent({
-            model: "gemini-2.0-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
               responseMimeType: "application/json",
