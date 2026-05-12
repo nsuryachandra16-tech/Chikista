@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 
-const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
+const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI(process.env.GEMINI_API_KEY) : null;
 const aiBackup = process.env.GEMINI_API_KEY1 ? new GoogleGenAI(process.env.GEMINI_API_KEY1) : null;
 
 export default function HealthCheck() {

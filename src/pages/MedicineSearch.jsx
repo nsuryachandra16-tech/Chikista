@@ -18,7 +18,7 @@ import { GoogleGenAI } from "@google/genai";
 import { cn } from '../lib/utils';
 import Card from '../components/Card';
 
-const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
+const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI(process.env.GEMINI_API_KEY) : null;
 const aiBackup = process.env.GEMINI_API_KEY1 ? new GoogleGenAI(process.env.GEMINI_API_KEY1) : null;
 
 export default function MedicineSearch() {
