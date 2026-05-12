@@ -50,7 +50,7 @@ export async function analyzeSymptoms(symptoms, history = []) {
     if (!ai) throw new Error("Gemini API is not initialized. Please check your API key.");
     
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,

@@ -108,7 +108,7 @@ export default function HealthCheck() {
       `;
 
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         contents: prompt
       });
       const text = response.text;
@@ -139,7 +139,7 @@ export default function HealthCheck() {
         console.warn('⚠️ Primary API failed or quota exceeded. Trying backup key...');
         try {
           const response = await aiBackup.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.5-flash",
             contents: prompt
           });
           const text = response.text;
