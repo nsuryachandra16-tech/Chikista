@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY1': JSON.stringify(env.GEMINI_API_KEY1),
+      'process.env.GROQ_API_KEY': JSON.stringify(env.GROQ_API_KEY),
       'process.env.JWT_SECRET': JSON.stringify(env.JWT_SECRET),
     },
     resolve: {

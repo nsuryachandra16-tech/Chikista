@@ -1,7 +1,7 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import Groq from "groq-sdk";
 
-const apiKey = process.env.GEMINI_API_KEY;
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+const apiKey = process.env.GROQ_API_KEY;
+const groq = apiKey ? new Groq({ apiKey, dangerouslyAllowBrowser: true }) : null;
 
 const SYSTEM_INSTRUCTION = `
 You are Chikitsa AI, a Clinical Intelligence engine. Your goal is to help users understand their symptoms through structured investigation.
@@ -47,20 +47,20 @@ export async function analyzeSymptoms(symptoms, history = []) {
   `;
 
   try {
-    if (!ai) throw new Error("Gemini API is not initialized. Please check your API key.");
+    if (!groq) throw new Error("Groq API is not initialized. Please check your API key.");
     
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
-      },
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: SYSTEM_INSTRUCTION },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" },
     });
 
-    return JSON.parse(response.text);
+    return JSON.parse(response.choices[0].message.content);
   } catch (error) {
-    console.error("Gemini Analysis Error:", error);
+    console.error("Groq Analysis Error:", error);
     throw error;
   }
 }

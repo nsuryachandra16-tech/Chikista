@@ -18,14 +18,12 @@ import {
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { cn } from '../lib/utils';
 import Card from '../components/Card';
 
-const apiKey1 = process.env.GEMINI_API_KEY;
-const apiKey2 = process.env.GEMINI_API_KEY1;
-const ai = apiKey1 ? new GoogleGenAI({ apiKey: apiKey1 }) : null;
-const aiBackup = apiKey2 ? new GoogleGenAI({ apiKey: apiKey2 }) : null;
+const apiKey = process.env.GROQ_API_KEY;
+const groq = apiKey ? new Groq({ apiKey, dangerouslyAllowBrowser: true }) : null;
 
 const getMockFallbackResult = (query) => ({
   name: query || "Condition Analysis",
@@ -74,32 +72,16 @@ export default function DiseaseInfo() {
     `;
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
+      if (!groq) throw new Error("Groq API key not configured.");
+      
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
       });
 
-      setResult(JSON.parse(response.text));
+      setResult(JSON.parse(response.choices[0].message.content));
     } catch (err) {
-      console.warn("Primary API failed. Checking for backup Gemini key...", err);
-      if (aiBackup) {
-        try {
-          const backupResponse = await aiBackup.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-              responseMimeType: "application/json",
-            },
-          });
-          setResult(JSON.parse(backupResponse.text));
-          return;
-        } catch (backupErr) {
-          console.error("Backup Gemini API failed too.", backupErr);
-        }
-      }
 
       console.warn("API quota or rate limit exceeded. Using secure, clinical fallback data.", err);
       setResult(getMockFallbackResult(searchQuery));

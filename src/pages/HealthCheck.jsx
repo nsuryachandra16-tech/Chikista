@@ -17,15 +17,13 @@ import {
   TrendingUp,
   MapPin
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 
-const apiKey1 = process.env.GEMINI_API_KEY;
-const apiKey2 = process.env.GEMINI_API_KEY1;
-const ai = apiKey1 ? new GoogleGenAI({ apiKey: apiKey1 }) : null;
-const aiBackup = apiKey2 ? new GoogleGenAI({ apiKey: apiKey2 }) : null;
+const apiKey = process.env.GROQ_API_KEY;
+const groq = apiKey ? new Groq({ apiKey, dangerouslyAllowBrowser: true }) : null;
 
 export default function HealthCheck() {
   const { user, authFetch } = useAuth();
@@ -107,11 +105,13 @@ export default function HealthCheck() {
         User input: ${currentInput}
       `;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
+      if (!groq) throw new Error("Groq API key not configured.");
+      
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }]
       });
-      const text = response.text;
+      const text = response.choices[0].message.content;
 
       // Only show buttons if it contains the FINAL_VERDICT tag
       const isActualAnalysis = text.includes('[FINAL_VERDICT]');
@@ -134,41 +134,7 @@ export default function HealthCheck() {
         generateReport(text, true, currentInput); 
       }
     } catch (error) {
-      console.error('Primary API error:', error);
-      if (aiBackup) {
-        console.warn('⚠️ Primary API failed or quota exceeded. Trying backup key...');
-        try {
-          const response = await aiBackup.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt
-          });
-          const text = response.text;
-          const isActualAnalysis = text.includes('[FINAL_VERDICT]');
-          const cleanText = text.replace(/\[FINAL_VERDICT\]/g, '').replace(/\*\*/g, '').replace(/###/g, '').trim();
-
-          const newMessage = { 
-            role: 'assistant', 
-            content: cleanText, 
-            timestamp: new Date(),
-            isAnalysis: isActualAnalysis,
-            rawResponse: text
-          };
-
-          setMessages(prev => [...prev, newMessage]);
-          setIsSynced(false);
-          if (isActualAnalysis) {
-            generateReport(text, true, currentInput); 
-          }
-          return;
-        } catch (backupErr) {
-          console.error('Backup Gemini API key failed too.', backupErr);
-        }
-      }
-
       console.error('Submit error:', error);
-      if (error?.status === 429 || error?.message?.includes('429') || error?.message?.toLowerCase().includes('quota') || error?.message?.toLowerCase().includes('exhausted')) {
-         console.warn('⚠️ API Quota limit exceeded! Please check your Gemini API key limits.');
-      }
       const errorMessage = error instanceof Error ? error.message : "I apologize, I'm having trouble processing that analysis right now. Please try again.";
       setMessages(prev => [...prev, { 
         role: 'assistant', 
