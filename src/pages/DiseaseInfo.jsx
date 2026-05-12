@@ -207,7 +207,7 @@ export default function DiseaseInfo() {
                          <Stethoscope size={16} className="text-medical-500" /> Etiology & Root Causes
                       </h4>
                       <p className="text-lg font-bold text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-                         {typeof result.causes === 'string' ? result.causes : JSON.stringify(result.causes)}
+                         {typeof result.causes === 'string' ? result.causes : (Array.isArray(result.causes) ? result.causes.join(', ') : JSON.stringify(result.causes))}
                       </p>
                    </section>
 
@@ -237,7 +237,7 @@ export default function DiseaseInfo() {
                             <ShieldCheck size={18} /> Preventive Protocols
                          </h4>
                          <p className="text-emerald-900 dark:text-emerald-100 font-black text-xl leading-relaxed tracking-tight">
-                            {typeof result.prevention === 'string' ? result.prevention : JSON.stringify(result.prevention)}
+                            {typeof result.prevention === 'string' ? result.prevention : (Array.isArray(result.prevention) ? result.prevention.join(', ') : JSON.stringify(result.prevention))}
                          </p>
                       </div>
                       <ShieldCheck size={120} className="absolute -bottom-10 -right-10 text-emerald-100 dark:text-emerald-800/20 opacity-20 group-hover:scale-110 transition-transform duration-500" />
@@ -249,7 +249,7 @@ export default function DiseaseInfo() {
                             <Zap size={16} /> Home Remedies & Comfort
                          </h4>
                          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">
-                            {typeof result.homeRemedies === 'string' ? result.homeRemedies : JSON.stringify(result.homeRemedies)}
+                            {typeof result.homeRemedies === 'string' ? result.homeRemedies : (Array.isArray(result.homeRemedies) ? result.homeRemedies.join(', ') : JSON.stringify(result.homeRemedies))}
                          </p>
                       </section>
                    )}
@@ -270,7 +270,7 @@ export default function DiseaseInfo() {
                          <Zap size={16} className="text-amber-500" /> Traditional Management
                       </h4>
                       <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                         {typeof result.treatment === 'string' ? result.treatment : JSON.stringify(result.treatment)}
+                         {typeof result.treatment === 'string' ? result.treatment : (Array.isArray(result.treatment) ? result.treatment.join(', ') : JSON.stringify(result.treatment))}
                       </p>
                       
                       <Link 
