@@ -190,12 +190,15 @@ export default function DiseaseInfo() {
                          <Activity size={16} className="text-medical-500" /> Clinical Presentation
                       </h4>
                       <div className="flex flex-wrap gap-3">
-                        {(Array.isArray(result.symptoms) ? result.symptoms : (result.symptoms?.split(',') || [])).map((s, i) => (
-                           <div key={i} className="group flex items-center gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-[1.5rem] hover:bg-medical-50 dark:hover:bg-medical-900/10 hover:border-medical-200 transition-all">
-                              <span className="w-2 h-2 rounded-full bg-medical-500 group-hover:animate-ping" />
-                              <span className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">{typeof s === 'string' ? s.trim() : s}</span>
-                           </div>
-                        ))}
+                        {(Array.isArray(result.symptoms) ? result.symptoms : (result.symptoms?.split(',') || [])).map((s, i) => {
+                           const content = typeof s === 'string' ? s : (s.name || s.symptom || s.description || JSON.stringify(s));
+                           return (
+                             <div key={i} className="group flex items-center gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-[1.5rem] hover:bg-medical-50 dark:hover:bg-medical-900/10 hover:border-medical-200 transition-all">
+                                <span className="w-2 h-2 rounded-full bg-medical-500 group-hover:animate-ping" />
+                                <span className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight">{content.trim ? content.trim() : content}</span>
+                             </div>
+                           );
+                        })}
                       </div>
                    </section>
 
@@ -214,11 +217,14 @@ export default function DiseaseInfo() {
                             <Bug size={16} className="text-medical-500" /> Types & Variants
                          </h4>
                          <div className="flex flex-wrap gap-3">
-                           {(Array.isArray(result.types) ? result.types : (result.types?.split(',') || [])).map((type, i) => (
-                              <div key={i} className="px-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-300">
-                                 {typeof type === 'string' ? type.trim() : type}
-                              </div>
-                           ))}
+                           {(Array.isArray(result.types) ? result.types : (result.types?.split(',') || [])).map((type, i) => {
+                              const content = typeof type === 'string' ? type : (type.name || type.type || type.description || JSON.stringify(type));
+                              return (
+                                <div key={i} className="px-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-300">
+                                   {content.trim ? content.trim() : content}
+                                </div>
+                              );
+                           })}
                          </div>
                       </section>
                    )}

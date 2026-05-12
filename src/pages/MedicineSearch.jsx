@@ -304,12 +304,15 @@ export default function MedicineSearch() {
                <Card title="Safety Checklist" subtitle="Critical Precautions" icon={ShieldAlert} className="h-full">
                   <div className="space-y-8">
                      <div className="space-y-4">
-                        {(Array.isArray(result.precautions) ? result.precautions : (result.precautions?.split('.') || [])).filter(p => typeof p === 'string' ? p.trim() : p).map((p, i) => (
-                           <div key={i} className="flex gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-colors group">
-                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 flex-shrink-0 group-hover:scale-150 transition-transform" />
-                              <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed">{typeof p === 'string' ? p.trim() : p}{typeof p === 'string' && !p.endsWith('.') ? '.' : ''}</p>
-                           </div>
-                        ))}
+                        {(Array.isArray(result.precautions) ? result.precautions : (result.precautions?.split('.') || [])).filter(p => p).map((p, i) => {
+                           const content = typeof p === 'string' ? p : (p.name || p.precaution || p.description || JSON.stringify(p));
+                           return (
+                             <div key={i} className="flex gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-colors group">
+                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 flex-shrink-0 group-hover:scale-150 transition-transform" />
+                                <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed">{content.trim ? content.trim() : content}{typeof content === 'string' && !content.endsWith('.') ? '.' : ''}</p>
+                             </div>
+                           );
+                        })}
                      </div>
 
                      {result.warning && (
