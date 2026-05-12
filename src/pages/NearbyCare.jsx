@@ -100,7 +100,7 @@ export default function NearbyCare() {
           rating: (Math.random() * (5 - 4) + 4).toFixed(1),
           reviews: Math.floor(Math.random() * 100),
           open: true,
-          phone: result.tags?.phone || "+1 (800) CLINIC",
+          phone: result.tags?.phone || "Contact Local Facility",
           tags: ["Operational", "OpenStreetMap Verified"],
           position: [result.lat, result.lon]
         };
@@ -138,7 +138,7 @@ export default function NearbyCare() {
           ...item,
           rating: (Math.random() * (5 - 4.5) + 4.5).toFixed(1),
           open: Math.random() > 0.2,
-          phone: "+1 (800) CLINIC",
+          phone: "Contact Local Facility",
           tags: [category.toUpperCase(), "Verified Position"],
           imageUrl: `https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=400&h=300&sig=${item.id}`
         }));

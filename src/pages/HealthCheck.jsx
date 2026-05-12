@@ -105,11 +105,9 @@ export default function HealthCheck() {
         User input: ${currentInput}
       `;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt
-      });
-      const text = response.text;
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const response = await model.generateContent(prompt);
+      const text = response.response.text();
 
       // Only show buttons if it contains the FINAL_VERDICT tag
       const isActualAnalysis = text.includes('[FINAL_VERDICT]');
@@ -136,11 +134,9 @@ export default function HealthCheck() {
       if (aiBackup) {
         console.warn('⚠️ Primary API failed or quota exceeded. Trying backup key...');
         try {
-          const response = await aiBackup.models.generateContent({
-            model: "gemini-3-flash-preview",
-            contents: prompt
-          });
-          const text = response.text;
+          const backupModel = aiBackup.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const response = await backupModel.generateContent(prompt);
+          const text = response.response.text();
           const isActualAnalysis = text.includes('[FINAL_VERDICT]');
           const cleanText = text.replace(/\[FINAL_VERDICT\]/g, '').replace(/\*\*/g, '').replace(/###/g, '').trim();
 

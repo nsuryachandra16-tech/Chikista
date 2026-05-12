@@ -57,28 +57,25 @@ export default function MedicineSearch() {
     `;
 
     try {
-      const response = await ai.models.generateContent({
+      const model = ai.getGenerativeModel({ 
         model: "gemini-1.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
+        generationConfig: { responseMimeType: "application/json" }
       });
-
-      const data = JSON.parse(response.text);
+      const response = await model.generateContent(prompt);
+      const resultText = response.response.text();
+      const data = JSON.parse(resultText);
       setResult(data);
     } catch (err) {
       console.warn("Primary API key failed in Medicine Search. Checking backup key...", err);
       if (aiBackup) {
         try {
-          const backupResponse = await aiBackup.models.generateContent({
+          const backupModel = aiBackup.getGenerativeModel({ 
             model: "gemini-1.5-flash",
-            contents: prompt,
-            config: {
-              responseMimeType: "application/json",
-            },
+            generationConfig: { responseMimeType: "application/json" }
           });
-          setResult(JSON.parse(backupResponse.text));
+          const backupResponse = await backupModel.generateContent(prompt);
+          const backupResultText = backupResponse.response.text();
+          setResult(JSON.parse(backupResultText));
           return;
         } catch (backupErr) {
           console.error("Backup Gemini API key failed too in Medicine Search.", backupErr);
