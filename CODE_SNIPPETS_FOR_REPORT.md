@@ -1,11 +1,4 @@
-# Core React Code Snippets for Project Report
-
-This document compiles the most technically significant and impressive React code snippets from the **Chikitsa** platform. These snippets represent the core functionalities of the application and are ready to be included directly in your React-focused academic or project report.
-
----
-
-## 🔬 Snippet 1: AI Clinical Triage Chat Engine (`HealthCheck.jsx`)
-*This snippet demonstrates React state management for a clinical chat interface, complex dynamic system prompt injection for low-latency triage, and custom regex tag-parsing (`[FINAL_VERDICT]`) to trigger database saves and report compilation.*
+# 1. AI Health Triage Interface (`HealthCheck.jsx`)
 
 ```javascript
 import React, { useState, useEffect } from 'react';
@@ -29,7 +22,6 @@ export default function HealthCheck() {
     setLoading(true);
 
     try {
-      // 1. Injected Clinical System Prompt optimized for fast triage
       const prompt = `
         You are "Chikitsa AI", a highly efficient clinical doctor. 
         CONVERSATIONAL RULES:
@@ -43,7 +35,6 @@ export default function HealthCheck() {
         - For everything else, provide [FINAL_VERDICT] NOW.
       `;
 
-      // 2. Fetching Llama-3.3-70b-versatile via Groq endpoint
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,12 +46,10 @@ export default function HealthCheck() {
       setMessages(prev => [...prev, { role: 'assistant', content: aiContent }]);
       setMedicalTurnCount(prev => prev + 1);
 
-      // 3. Extracting and Parsing the Final Verdict using Regex
       if (aiContent.includes('[FINAL_VERDICT]')) {
         const cleanReport = parseVerdict(aiContent);
         setTriageReport(cleanReport);
         
-        // Auto-save parsed report to database via REST API
         await fetch('/api/reports', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -74,7 +63,6 @@ export default function HealthCheck() {
     }
   };
 
-  // Helper: Regex parser to extract structured diagnostics from plain-text LLM response
   const parseVerdict = (text) => {
     const diseaseMatch = text.match(/Suspected Condition:\s*(.+)/i);
     const specialistMatch = text.match(/Clinical Recommendation:\s*(.+)/i);
@@ -87,7 +75,6 @@ export default function HealthCheck() {
 
   return (
     <div className="flex flex-col h-[600px] bg-slate-900 rounded-[2rem] p-6">
-      {/* Scrollable Clinical Chat Screen */}
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         <AnimatePresence>
           {messages.map((msg, i) => (
@@ -103,7 +90,6 @@ export default function HealthCheck() {
         </AnimatePresence>
       </div>
 
-      {/* Input Tray */}
       <form onSubmit={handleSend} className="mt-4 flex gap-3">
         <input 
           type="text" 
@@ -121,24 +107,20 @@ export default function HealthCheck() {
 }
 ```
 
----
-
-## 🛡️ Snippet 2: Defensive Rendering Pipeline (`DiseaseInfo.jsx`)
-*This snippet showcases advanced defensive programming in React JSX. LLMs sometimes return raw JSON arrays or nested objects instead of simple strings. To prevent a fatal crash (**React Minified Error #31**), this React component intercepts and normalizes the state data dynamically before rendering.*
+# 2. Pathological Directory & Defensive Rendering (`DiseaseInfo.jsx`)
 
 ```javascript
 import React, { useState } from 'react';
 import { Stethoscope, ShieldCheck, Zap, BookOpen } from 'lucide-react';
 
 export default function DiseaseInfo() {
-  const [result, setResult] = useState(null); // Holds dynamic AI diagnostics
+  const [result, setResult] = useState(null);
 
   return (
     <div className="space-y-8 p-8 max-w-4xl mx-auto">
       {result && (
         <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8">
           
-          {/* 1. Etiology & Root Causes: Object and Array Check */}
           <section>
             <h4 className="flex items-center gap-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
               <Stethoscope size={16} className="text-medical-500" /> Etiology & Root Causes
@@ -147,13 +129,12 @@ export default function DiseaseInfo() {
               {typeof result.causes === 'string' 
                 ? result.causes 
                 : (Array.isArray(result.causes) 
-                    ? result.causes.join(', ') // Joins arrays cleanly to remove brackets and quotes
-                    : JSON.stringify(result.causes) // Safe stringify fallback
+                    ? result.causes.join(', ') 
+                    : JSON.stringify(result.causes) 
                   )}
             </p>
           </section>
 
-          {/* 2. Preventive Protocols: Safeguarding Dynamic State */}
           <section className="p-6 bg-emerald-950/20 border border-emerald-800/30 rounded-2xl">
             <h4 className="flex items-center gap-3 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">
               <ShieldCheck size={18} /> Preventive Protocols
@@ -168,7 +149,6 @@ export default function DiseaseInfo() {
             </p>
           </section>
 
-          {/* 3. Recommended Therapeutics: Safe Property Extraction from AI Objects */}
           {result.recommendedTablet && (
             <section className="p-6 bg-blue-950/20 border border-blue-800/30 rounded-2xl">
               <h4 className="flex items-center gap-3 text-xs font-bold text-blue-400 uppercase tracking-wider mb-3">
@@ -179,7 +159,7 @@ export default function DiseaseInfo() {
                   ? result.recommendedTablet 
                   : (result.recommendedTablet.name || 
                      result.recommendedTablet.tablet || 
-                     JSON.stringify(result.recommendedTablet) // Extends properties without breaking JSX
+                     JSON.stringify(result.recommendedTablet)
                     )}
               </p>
             </section>
@@ -192,27 +172,108 @@ export default function DiseaseInfo() {
 }
 ```
 
----
+# 3. Pharmaceutical Knowledge Directory (`MedicineSearch.jsx`)
 
-## 🗺️ Snippet 3: Geospatial Geolocation and Haversine distance (`NearbyCare.jsx`)
-*This snippet demonstrates React Leaflet integration with an open-source mapping database (Overpass API). It includes coordinate tracking and a pure JavaScript implementation of the **Haversine Formula** to compute distances along the Earth's curve dynamically.*
+```javascript
+import React, { useState } from 'react';
+import { Search, Pill, ShieldAlert, AlertTriangle, BookOpen, Clock } from 'lucide-react';
+import Groq from "groq-sdk";
+
+export default function MedicineSearch() {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const fetchMedicine = async (searchQuery) => {
+    if (!searchQuery.trim() || loading) return;
+
+    setLoading(true);
+    setResult(null);
+    setError(null);
+
+    const prompt = `
+      Provide comprehensive clinical information about the medicine: "${searchQuery}".
+      Return the data in a structured JSON format with the following fields:
+      - name: Common name of the medicine
+      - uses: How it's used
+      - precautions: Key precautions to take (string or array)
+      - safeDosage: General safe dosage information
+      - sideEffects: Common side effects
+      - category: Therapeutic class
+      - warning: Critical safety warning if any
+    `;
+
+    try {
+      const response = await fetch('/api/medicine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      setError("Unable to find information for this medication.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-4xl mx-auto space-y-8">
+      {/* Pharmaceutical Warning Alert Card */}
+      {result?.warning && (
+        <div className="p-6 bg-red-950/20 border border-red-800/30 rounded-2xl flex gap-4">
+          <ShieldAlert className="text-red-500 shrink-0" size={24} />
+          <div>
+            <h5 className="text-red-400 font-bold text-sm uppercase tracking-wider">Black Box Safety Warning</h5>
+            <p className="text-red-200 text-sm mt-1">{result.warning}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Safety Precautions - Safely parsing Arrays and Objects from AI */}
+      {result?.precautions && (
+        <div className="p-6 bg-amber-950/20 border border-amber-800/30 rounded-2xl">
+          <h5 className="text-amber-400 font-bold text-sm uppercase tracking-wider mb-3">Clinical Precautions</h5>
+          <ul className="list-disc pl-5 space-y-2 text-amber-200 text-sm">
+            {typeof result.precautions === 'string' 
+              ? <li>{result.precautions}</li> 
+              : (Array.isArray(result.precautions) 
+                  ? result.precautions.map((prec, i) => (
+                      <li key={i}>
+                        {typeof prec === 'string' 
+                          ? prec 
+                          : (prec.precaution || prec.description || JSON.stringify(prec))
+                        }
+                      </li>
+                    ))
+                  : <li>{JSON.stringify(result.precautions)}</li>
+                )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+# 4. Geospatial Specialist Map Integration (`NearbyCare.jsx`)
 
 ```javascript
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Navigation } from 'lucide-react';
 
 export default function NearbyCare() {
-  const [userLocation, setUserLocation] = useState({ lat: 12.9716, lng: 77.5946 }); // Default: Bangalore
+  const [userLocation, setUserLocation] = useState({ lat: 12.9716, lng: 77.5946 });
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Core Search Engine: Querying OpenStreetMap Overpass API directly
   const fetchNearbyFacilities = async (lat, lng) => {
     setLoading(true);
     try {
-      // OSM Overpass query: Find all amenities matching 'hospital' or 'clinic' within a 10km radius (10,000m)
       const query = `[out:json];node(around:10000,${lat},${lng})[amenity~"hospital|clinic"];out;`;
       const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
       
@@ -220,9 +281,8 @@ export default function NearbyCare() {
       const data = await response.json();
 
       const parsed = (data.elements || []).map((element) => {
-        
         // --- MATHEMATICAL HAVERSINE FORMULA IN REACT ---
-        const R = 6371; // Earth's Radius in Kilometers
+        const R = 6371;
         const dLat = (element.lat - lat) * Math.PI / 180;
         const dLon = (element.lon - lng) * Math.PI / 180;
         
@@ -231,7 +291,7 @@ export default function NearbyCare() {
                   Math.sin(dLon/2) * Math.sin(dLon/2);
                   
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        const distanceInKm = R * c; // Mathematical absolute geodesic distance
+        const distanceInKm = R * c;
         // ------------------------------------------------
 
         return {
@@ -244,7 +304,6 @@ export default function NearbyCare() {
         };
       });
 
-      // Sort coordinates from closest to furthest
       setFacilities(parsed.sort((a, b) => a.distanceVal - b.distanceVal));
     } catch (err) {
       console.error("OSM Overpass extraction failed:", err);
@@ -254,7 +313,6 @@ export default function NearbyCare() {
   };
 
   useEffect(() => {
-    // Automatically retrieve user's hardware coordinates on mount
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -267,8 +325,6 @@ export default function NearbyCare() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6">
-      
-      {/* 1. Left Tray: List of Nearby Facilities */}
       <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 max-h-[500px] overflow-y-auto">
         <h3 className="text-white font-bold text-lg flex items-center gap-2">
           <Navigation size={20} className="text-emerald-400" /> Closest Healthcare Services
@@ -281,17 +337,14 @@ export default function NearbyCare() {
         ))}
       </div>
 
-      {/* 2. Right Tray: Leaflet Map Container */}
       <div className="md:col-span-2 h-[500px] bg-slate-800 border border-slate-700 rounded-3xl overflow-hidden relative">
         <MapContainer center={[userLocation.lat, userLocation.lng]} zoom={14} className="h-full w-full">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           
-          {/* User Location pin */}
           <Marker position={[userLocation.lat, userLocation.lng]}>
             <Popup>You are here</Popup>
           </Marker>
 
-          {/* Hospital/Clinic pins fetched in real-time */}
           {facilities.map((fac) => (
             <Marker key={fac.id} position={[fac.lat, fac.lng]}>
               <Popup>
@@ -302,7 +355,6 @@ export default function NearbyCare() {
           ))}
         </MapContainer>
       </div>
-
     </div>
   );
 }
