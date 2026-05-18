@@ -14,7 +14,7 @@ graph TD
     Render <-->|Secure MySQL TCP Port 3306| Aiven[(Aiven Managed MySQL Cloud)]
     Render <-->|HTTPS REST API / Port 587| Brevo[Brevo SMTP / REST Email Server]
     Render <-->|HTTPS API Port 443| Groq[Groq Llama 3.3 Versatile Cloud]
-    Render <-->|HTTPS TomTom SDK| TomTom[TomTom Geolocation Maps Engine]
+    Render <-->|Overpass OpenStreetMap API| OSM[Overpass Open Data Engine]
 ```
 
 ### 1. Web Hosting & Compute: **Render**
@@ -129,8 +129,8 @@ A verified pharmaceutical database explaining medication logic, intake procedure
 Matches matched clinical specialists (e.g., Gastroenterologists or Cardiologists) to real-world geolocation markers.
 
 1.  **Provider Request**: Upon diagnosing a condition, the user clicks **"Find Specialists"**.
-2.  **Geolocation Query**: The app calls the external **TomTom Maps API** using the user's current city/coordinates (`VITE_TOMTOM_API_KEY`) to fetch latitude and longitude bounds for medical facilities.
-3.  **Interactive Rendering**: The coordinates are mapped in the client browser using the **Leaflet map engine**. Leaflet fetches OpenStreetMap graphical map tiles, placing precise markers pointing to local hospitals, specialty clinics, and emergency care facilities.
+2.  **Geolocation Query**: The app executes direct query dispatches to the public **Overpass API (OpenStreetMap)** using coordinate ranges to locate local healthcare infrastructure within a 10km radius.
+3.  **Interactive Rendering**: The matched hospitals, clinics, and pharmacies are compiled into Leaflet coordinates. Using Leaflet, the frontend plots interactive markers layered on dynamic **OpenStreetMap (OSM)** map tiles, entirely bypassing heavy proprietary map solutions.
 
 ---
 
